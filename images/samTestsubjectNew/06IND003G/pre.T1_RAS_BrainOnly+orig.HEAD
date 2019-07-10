@@ -1,0 +1,135 @@
+
+type = string-attribute
+name = HISTORY_NOTE
+count = 2415
+'[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] ===================================\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] === History of inputs to 3dcalc ===\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] === Input a:\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] [administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] {AFNI_19.1.26:macos_10.12_local} 3dSkullStrip -prefix /Volumes/PegasusDDLab/Pipeline/06IND003G//T1_Mask.nii -mask_vol -input /Volumes/PegasusDDLab/Pipeline/06IND003G//T1_RAS.nii\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] {AFNI_19.1.26:macos_10.12_local} 3dcalc -a /Volumes/PegasusDDLab/Pipeline/06IND003G//T1_Mask.nii -expr 'ispositive(a-5)' -prefix /Volumes/PegasusDDLab/Pipeline/06IND003G//brain.nii\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] === Input b:\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] [lourdesmarielle@Lourdess-MacBook-Pro.local: Mon Nov 26 23:24:42 2018] {AFNI_18.1.11:macosx_10.7_local} 3drefit -deoblique 06IND003G_neurologicalHighRes.nii\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:35:01 2019] {AFNI_19.1.26:macos_10.12_local} 3dresample -prefix /Volumes/PegasusDDLab/Pipeline/06IND003G//T1_RAS.nii -orient ras -rmode Li -inset /Volumes/PegasusDDLab/Pipeline/06IND003G_neurologicalHighRes.nii\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] ===================================\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:16 2019] {AFNI_19.1.26:macos_10.12_local} 3dcalc -a /Volumes/PegasusDDLab/Pipeline/06IND003G//brain.nii -b /Volumes/PegasusDDLab/Pipeline/06IND003G//T1_RAS.nii -expr '(a*b)' -prefix /Volumes/PegasusDDLab/Pipeline/06IND003G//T1_RAS_BrainOnly.nii\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:17 2019] {AFNI_19.1.26:macos_10.12_local} 3dcopy T1_RAS_BrainOnly.nii ./T1_RAS_BrainOnly_AFN_OYmeqfZ3JqF7n9LNC7gDAA\n[administrator@f5kpx0hdf9vn-eth2.uea.ac.uk: Wed Jul 10 16:36:20 2019] {AFNI_19.1.26:macos_10.12_local} 3dWarp -matvec_out2in T1_RAS_BrainOnly_AFN_OYmeqfZ3JqF7n9LNC7gDAA_shft.1D -prefix pre.T1_RAS_BrainOnly_AFN_OYmeqfZ3JqF7n9LNC7gDAA -gridset __ats_tmp__T1_RAS_BrainOnly_AFN_OYmeqfZ3JqF7n9LNC7gDAA_shft+orig.HEAD -NN ./T1_RAS_BrainOnly_AFN_OYmeqfZ3JqF7n9LNC7gDAA+orig.HEAD~
+
+type  = float-attribute
+name  = WARPDRIVE_MATVEC_FOR_000000
+count = 12
+              1              0              0        3.60828              0
+              1              0       -18.1445              0              0
+              1       -30.5681
+
+type  = float-attribute
+name  = WARPDRIVE_MATVEC_INV_000000
+count = 12
+              1              0              0       -3.60828              0
+              1              0        18.1445              0              0
+              1        30.5681
+
+type = string-attribute
+name = TYPESTRING
+count = 15
+'3DIM_HEAD_ANAT~
+
+type = string-attribute
+name = IDCODE_STRING
+count = 27
+'AFN_aaI8kr2PQxUGCvbTnLSE1g~
+
+type = string-attribute
+name = IDCODE_DATE
+count = 25
+'Wed Jul 10 16:36:19 2019~
+
+type = integer-attribute
+name = SCENE_DATA
+count = 8
+ 0 11 0 -999 -999
+ -999 -999 -999
+
+type = string-attribute
+name = LABEL_1
+count = 5
+'zyxt~
+
+type = string-attribute
+name = LABEL_2
+count = 5
+'zyxt~
+
+type = string-attribute
+name = DATASET_NAME
+count = 5
+'zyxt~
+
+type = integer-attribute
+name = ORIENT_SPECIFIC
+count = 3
+ 0 3 5
+
+type  = float-attribute
+name  = ORIGIN
+count = 3
+      -70.66479      -65.76149       82.90175
+
+type  = float-attribute
+name  = DELTA
+count = 3
+       1.200001      0.8538502     -0.8538502
+
+type  = float-attribute
+name  = IJK_TO_DICOM
+count = 12
+       1.200001              0              0      -70.66479              0
+      0.8538502              0      -65.76149              0              0
+     -0.8538502       82.90175
+
+type  = float-attribute
+name  = IJK_TO_DICOM_REAL
+count = 12
+       1.200001              0              0      -70.66479              0
+      0.8538502              0      -65.76149              0              0
+     -0.8538502       82.90175
+
+type  = float-attribute
+name  = BRICK_STATS
+count = 2
+              0       773.6592
+
+type = integer-attribute
+name = DATASET_RANK
+count = 8
+ 3 1 0 0 0
+ 0 0 0
+
+type = integer-attribute
+name = DATASET_DIMENSIONS
+count = 5
+ 117 192 192 0 0
+
+type = integer-attribute
+name = BRICK_TYPES
+count = 1
+ 3
+
+type  = float-attribute
+name  = BRICK_FLOAT_FACS
+count = 1
+              0
+
+type = string-attribute
+name = BRICK_LABS
+count = 3
+'#0~
+
+type = string-attribute
+name = BRICK_KEYWORDS
+count = 1
+'~
+
+type = string-attribute
+name = TEMPLATE_SPACE
+count = 5
+'ORIG~
+
+type = integer-attribute
+name = INT_CMAP
+count = 1
+ 0
+
+type = string-attribute
+name = BYTEORDER_STRING
+count = 10
+'LSB_FIRST~
