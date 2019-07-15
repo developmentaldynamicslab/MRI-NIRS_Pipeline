@@ -1,9 +1,6 @@
 #!/bin/bash
 
-echo "ERROR: Scripts needs to be updated to support new pipeline"
-exit 1
-
-export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin
+#export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin
 
 subjectT1=""
 subjectBrainMask=""
@@ -119,7 +116,7 @@ antsRegistration --dimensionality 3 --float 0 \
 --output [${outputDir}/${scanId}_T1_to_Atlas_,${outputDir}/${scanId}_T1_to_Atlas.nii.gz] \
 --interpolation LanczosWindowedSinc \
 --winsorize-image-intensities [0.005,0.995] \
---use-histogram-matching 0 \
+--use-histogram-matching 1 \
 --initial-moving-transform [$atlasT1,$subjectT1,1] \
 --transform Rigid[0.1] \
 --metric MI[$atlasT1,$subjectT1,0.25] \
@@ -217,19 +214,5 @@ ageAtlasMask=../VINCE_030G/T1_Mask.nii
 
 Register to COmmon Atlas and resample Image
 Resample all follower images
-
-3dLRflip -prefix headvolFlipRL.nii headvol.nii
-3dAllineate -base hseg.nii -input headvolFlipRL.nii -prefix vol2segFlipRL.nii -1Dmatrix_save vol2segXfrmFlip.1D -interp linear -nomask -warp  affine_general -cost leastsq
-
-
-3dAllineate \
--base hseg.nii \
--input headvol.nii \
--prefix vol2seg.nii \
--1Dmatrix_save vol2segXfrm.1D \
--interp linear \
--nomask \
--warp  affine_general \
--cost leastsq
 
 
