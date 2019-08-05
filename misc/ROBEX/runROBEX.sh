@@ -8,17 +8,17 @@ then
 fi
 
 # Absolute path to output script
-SCRIPT=$(readlink -f $0)
+SCRIPT=`perl -e 'use Cwd "abs_path";print abs_path(shift)' $0`
 # Absolute path this script is in
 SCRIPTPATH=`dirname $SCRIPT`
 # Absolute path to input
-INPUT=$(readlink -f $1)
+INPUT=`perl -e 'use Cwd "abs_path";print abs_path(shift)' $1`
 # Absolute path to output1
-OUTPUT1=$(readlink -f $2)
+OUTPUT1=`perl -e 'use Cwd "abs_path";print abs_path(shift)' $2`
 # Absolute path to output2 (if it is there)
 if [ $# -gt 2 ]
 then
-	OUTPUT2=$(readlink -f $3)
+	OUTPUT2=`perl -e 'use Cwd "abs_path";print abs_path(shift)' $3`
 else
 	OUTPUT2=""
 fi
