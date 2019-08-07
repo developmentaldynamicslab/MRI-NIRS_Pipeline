@@ -6,9 +6,11 @@ alternateSkullStrip=0
 biasFieldCorrection=0
 medianFilter=0
 neonateScan=0
+skullStripRadius=50
+robexSkullStrip=0
 
 # Parse Command line arguements
-while getopts “t:r:c:o:s:habmn” OPTION
+while getopts “t:r:c:o:s:i:ehabmn” OPTION
 do
   case $OPTION in
     h)
@@ -19,10 +21,12 @@ do
       echo "   -o OutputDirectory"
       echo "   -c Number of voxels to pad with 0 around the image (default is 10)"
       echo "   -s Threshold scale factor (default is 1 = off, value should between 0 and 1)"
+      echo "   -i Initial radius for skull stripping for neonate scans (default is 50)"
       echo "   -a Flag to use alternate approach (A) to skull strip for scans"
       echo "   -b Flag to perform bias field correction in cases where image exhibit shading"
       echo "   -m Flag to perform median filtering where image has low SNR"
       echo "   -n Flag to use neonate pipeline options"
+      echo "   -e Flag to use ROBEX skull stripping for scans"
       echo "   -h Display help message"
       exit 1
       ;;
@@ -41,8 +45,14 @@ do
     s)
       thresholdScale=$OPTARG
       ;;
+    i)
+      skullStripRadius=$OPTARG
+      ;;
     b)
       biasFieldCorrection=1
+      ;;
+    e)
+      robexSkullStrip=1
       ;;
     m)
       medianFilter=1
@@ -54,17 +64,19 @@ do
       alternateSkullStrip=1
       ;;
     ?)
-      echo "ERROR: Invalid option"
-      echo "Usage: $0 -t t1Image -o outputDir -c padSize -s threshold-scale"
+      echo "Usage: $0 -t t1Image -r classImage -o outputDir -c padSize -s threshold-scale"
       echo "   where"
       echo "   -t T1 Weighted image for analysis"
+      echo "   -r Tissue classified image (if not specified, then this will be created)"
       echo "   -o OutputDirectory"
       echo "   -c Number of voxels to pad with 0 around the image (default is 10)"
       echo "   -s Threshold scale factor (default is 1 = off, value should between 0 and 1)"
-      echo "   -a Flag to use alternate approach (A) to skull strip for neonate scans"
+      echo "   -i Initial radius for skull stripping for neonate scans (default is 50)"
+      echo "   -a Flag to use alternate approach (A) to skull strip for scans"
       echo "   -b Flag to perform bias field correction in cases where image exhibit shading"
       echo "   -m Flag to perform median filtering where image has low SNR"
       echo "   -n Flag to use neonate pipeline options"
+      echo "   -e Flag to use ROBEX skull stripping for scans"
       echo "   -h Display help message"
       exit 1
       ;;
@@ -102,6 +114,10 @@ if [ "$alternateSkullStrip" == "1" ]; then
 	fi
 fi
 
+if [ "$robexSkullStrip" == "1" ]; then
+  echo "WARNING: ROBEX skull stripping specified. This supersedes ALL other skull stripping options."
+  alternateSkullStrip=3
+fi
 
 ######################################################################################
 # STEP 1 - RAS Orientation
@@ -111,6 +127,18 @@ fi
 rasT1Image=$analysisDir/T1_RAS.nii
 3dresample -prefix ${rasT1Image} -orient ras -rmode Li -inset $T1Image
 
+
+######################################################################################
+# STEP 2a - Bias Field Correction (optional)
+# Perform bias field correction if requested. Typically not needed but some
+# datasets with large shading artifacts may need this step.
+######################################################################################
+if [ $biasFieldCorrection == 1 ]; then
+  rasT1ImageBC=$analysisDir/T1_RAS_BC.nii
+  3dUnifize -GM -prefix $rasT1ImageBC -input ${rasT1Image}
+
+  rasT1Image=$rasT1ImageBC
+fi
 
 ######################################################################################
 # STEP 2 - Clip T1 to the Brain
@@ -124,12 +152,24 @@ case $alternateSkullStrip in
     3dSkullStrip -prefix $T1Mask -mask_vol -input $rasT1Image
     ;;
   1)
-    3dSkullStrip -prefix $T1Mask -mask_vol -avoid_eyes -init_radius 50 -use_skull -exp_frac 0.05 -input $rasT1Image
+   3dSkullStrip -prefix $T1Mask -mask_vol -avoid_eyes -init_radius ${skullStripRadius} -use_skull -exp_frac 0.05 -input $rasT1Image
     rm skull_strip_out_hull.ply
     ;;
   2)
-    3dSkullStrip -prefix $T1Mask -mask_vol -avoid_eyes -init_radius 50 -use_skull -input $rasT1Image
+    3dSkullStrip -prefix $T1Mask -mask_vol -avoid_eyes -init_radius ${skullStripRadius} -use_skull -input $rasT1Image
     rm skull_strip_out_hull.ply
+    ;;
+  3)
+    3dSkullStrip -prefix $T1Mask -mask_vol -avoid_eyes -init_radius ${skullStripRadius} -use_skull -exp_frac 0.05 -input $rasT1Image
+    rm skull_strip_out_hull.ply
+    T1ClipImage=$analysisDir/T1_RAS_Clip.nii
+    T1RobexMask=$analysisDir/T1_Mask_ROBEX.nii
+    runROBEX.sh $rasT1Image $T1ClipImage $T1RobexMask
+    T1RobexDilateMask=$analysisDir/T1_Mask_ROBEX_dilate3.nii
+    3dmask_tool -input $T1RobexMask -prefix $T1RobexDilateMask -dilate_input 3
+    T1CombMask=$analysisDir/T1_Mask_Combined.nii
+    3dcalc -a $T1RobexDilateMask -b $T1Mask -expr 'a*b' -prefix $T1CombMask
+    T1Mask=$T1CombMask
     ;;
   *)
     echo "Error: Invalid skull stripping mode specified"
@@ -215,24 +255,7 @@ echo "T1 Scaled Threshold: $threshold"
 3dcalc -a $expandImage -expr "step(a-${threshold})" -prefix $T1ThresholdImage
 T1SkullMask=$analysisDir/T1_Skull_Mask.nii
 3dinfill -blend SOLID -prefix $T1SkullMask -minhits 2 -input $T1ThresholdImage
-
-
-######################################################################################
-# STEP 6 - Bias Field Correction (optional)
-# Perform bias field correction if requested. Typically not needed but some
-# datasets with large shading artifacts may need this step.
-######################################################################################
-if [ $biasFieldCorrection == 1 ]; then
-  T1Brain=$analysisDir/T1_brain.nii
-  3dcalc -a $acpcBrainMask -b $acpcT1Image -expr 'step(a)*b' -prefix $T1Brain
-  
-  T1BrainBFC=$analysisDir/T1_brain_BFC.nii
-  3dUnifize -prefix $T1BrainBFC -input ${T1Brain} 
-  
-  classT1=$T1BrainBFC
-else
-  classT1=$acpcT1Image
-fi
+classT1=$acpcT1Image
 
 
 ######################################################################################
