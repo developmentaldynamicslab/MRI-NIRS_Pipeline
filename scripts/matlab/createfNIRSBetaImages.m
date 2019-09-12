@@ -3,13 +3,11 @@ function createfNIRSBetaImages(subjectListFile)
 %       Creates NIFTI images corresponding to the
 %       combination of the Betas as well as the
 %       fNIRS sensitivity profiles. The user provides
-%       the analysiDir which contains the Monte Carlo
-%       based sensitivity profiles and the betaDir
-%       which contains the Beta maps for the task.
+%       a list of subjects to be analyzed in a file
+%       with the following format:
+%       SubjectId NIRSFile BetaDir ImageDir ResultDir
 %       The resulting NIFTI images wre written into
-%       the analysiDir directory. Finally, the user
-%       specifies the list of subjects to be included
-%       in the analysis.
+%       the ResultDir directory. 
 %
 
 fileID = fopen(subjectListFile,'r');
