@@ -1,13 +1,26 @@
-function BetasExtractAndAverage(analysisDir, subjects)
-% BetasExtractAndAverage(analysisDir)
+function BetasExtractAndAverage(analysisDir, subjectListFile)
+% BetasExtractAndAverage(analysisDir, subjectListFile)
 %       Extracts the Betas per channel and averages
 %       the data across runs. The resulkt is a csv
 %       file that can be used later to generate an
 %       image based representation of the results.
 %       This is done in two steps to match what was
-%       previously done
+%       previously done. The input to this function
+%       are the analysisDirectory and a file containing
+%       the subject list. The subject list file needs to
+%       have a single column containing the subject
+%       identifiers.
 %
 
+
+fileID = fopen(subjectListFile,'r');
+if fileID < 0
+  error 'Failed to open the subjectListFile for reading'
+end
+subjectList = textscan(fileID,'%s');
+fclose(fileID)
+
+subjects=subjectList{1,1};
 
 numSubjects=size(subjects,2);
 
