@@ -35,8 +35,8 @@ let index=1
 
 for i in $subjects
 do
-  NIRSfile=`sed -n ${index}p $1 | awk '{print $2}'`
-  subjectDir=`sed -n ${index}p $1 | awk '{print $3}'`
+  NIRSfile=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $2}'`
+  subjectDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $3}'`
   outputDir=$subjectDir/viewer/Subject
 
   if [ ! -e $outputDir ]; then
