@@ -8,16 +8,19 @@ function BetasExtractAndAverage(analysisDir, subjectListFile)
 %       previously done. The input to this function
 %       are the analysisDirectory and a file containing
 %       the subject list. The subject list file needs to
-%       have a single column containing the subject
-%       identifiers.
+%       have a five columns with the following format:
+%       SubjectId NIRSFile ImageDir BetaDir ResultDir
 %
+%       This format now matches the commands used in
+%       these steps.
 
 
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
     error 'Failed to open the subjectListFile for reading'
 end
-subjectList = textscan(fileID,'%s');
+%subjectList = textscan(fileID,'%s');
+subjectList = textscan(fileID,'%s %s %s %s %s');
 fclose(fileID)
 
 subjects=subjectList{1,1};

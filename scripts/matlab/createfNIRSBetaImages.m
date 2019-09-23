@@ -5,7 +5,7 @@ function createfNIRSBetaImages(subjectListFile)
 %       fNIRS sensitivity profiles. The user provides
 %       a list of subjects to be analyzed in a file
 %       with the following format:
-%       SubjectId NIRSFile BetaDir ImageDir ResultDir
+%       SubjectId NIRSFile ImageDir BetaDir ResultDir
 %       The resulting NIFTI images wre written into
 %       the ResultDir directory. 
 %
@@ -53,8 +53,8 @@ for sub=1:numSubjects
 
 
   %% Get the Subject Beta Files
-  oxyData=importdata(strcat(subjectList{3}{sub},'/Final_O_', subjectList{1}{sub},'.csv'));
-  deoxyData=importdata(strcat(subjectList{3}{sub},'/Final_D_', subjectList{1}{sub},'.csv'));
+  oxyData=importdata(strcat(subjectList{4}{sub},'/Final_O_', subjectList{1}{sub},'.csv'));
+  deoxyData=importdata(strcat(subjectList{4}{sub},'/Final_D_', subjectList{1}{sub},'.csv'));
 
   Y=[(e(1,1)*(d*ones(1,size(oxyData,2))).*oxyData)+ ...
      (e(1,2)*(d*ones(1,size(deoxyData,2))).*deoxyData); ...
@@ -63,10 +63,16 @@ for sub=1:numSubjects
 
 
   for i=1:numel(d)
-    varName1 = ['A' int2str(sd_pairs(i))];
+    %VAM - OLD Filename matching
+    %varName1 = ['A' int2str(sd_pairs(i))];
     %VAM This filename needs to checked
-    imageFile=strcat(subjectList{4}{sub},'/',varName1,'_resam.nii');
-    %imageFile=strcat(subjectList{4}{sub},'/',varName1,'.nii');
+    %imageFile=strcat(subjectList{3}{sub},'/',varName1,'_resam.nii');
+    %imageFile=strcat(subjectList{3}{sub},'/',varName1,'.nii');
+    %VAM - NEW Filename matching
+    varName1 = ['C' int2str(sd_pairs(i))];
+    matchStr=strcat(subjectList{3}{sub},'/AdotVol_S*_D*_',varName1,'.nii');
+    niiFiles=dir(matchStr);
+    imageFile=strcat(subjectList{3}{sub},'/',niiFiles(1).name);
     A_load = load_untouch_nii(imageFile);
     Adot(i,:)=reshape(A_load.img,1,[]);
     clear A_load;
