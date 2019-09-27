@@ -94,6 +94,9 @@ for n=1:numSubjects
         %    outputDeoxyFile=strcat(analysisDir, '/', filenames{r}, '_D.txt');
         outputDeoxyFile=strcat(filenames{r}, '_D.txt');
         csvwrite(outputDeoxyFile,nanmean(D_run,3));
+        
+        clear aux d dStd ml procInput procResult s SD systemInfo t tdml tIncMan userdata
+        
     end % end of run loop
 end % end subject loop
 

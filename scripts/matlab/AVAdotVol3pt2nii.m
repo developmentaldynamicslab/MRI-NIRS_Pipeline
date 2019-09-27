@@ -59,7 +59,7 @@ fid = fopen(profileFileName,'r');
 for i=[0:nMeas-1]
   fseek(fid, nx*ny*nz*4*i, 'bof');
   tmpImage=fread(fid,nx*ny*nz,'single');
-  vox=reshape(tmpImage, dims);
+  vox=reshape(tmpImage, dims);  
   vox=vox .* tissueMask;
 
   T_2mcInv =  inv(fwVox.T_2digpts);
