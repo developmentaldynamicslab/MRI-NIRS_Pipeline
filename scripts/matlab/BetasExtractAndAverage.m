@@ -164,7 +164,7 @@ for s=1:numSubjects
         %% Loop Over Conditions
         for m=1:numConditions
             if nnz(oxy(n,m,:))>=1
-                meanOxy(n,m) = mean(nonzeros(deoxy(n,m,:)));
+                meanOxy(n,m) = mean(nonzeros(oxy(n,m,:)));
             else
                 meanOxy(n,m) = 0.0;
             end
