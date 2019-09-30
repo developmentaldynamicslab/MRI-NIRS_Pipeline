@@ -110,7 +110,7 @@ for sub=1:numSubjects
     oxyFile=strcat(subjectList{5}{sub},'/Beta_', subjectList{1}{sub},'_', varName2,'_Unmasked_oxy.nii');
     save_untouch_nii(tempHbO,oxyFile);
     deoxyFile=strcat(subjectList{5}{sub},'/Beta_', subjectList{1}{sub},'_', varName2,'_Unmasked_deoxy.nii');
-    save_untouch_nii(tempHbO,deoxyFile);
+    save_untouch_nii(tempHbR,deoxyFile);
   end
   
   clear Adot;
