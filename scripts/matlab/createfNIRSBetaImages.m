@@ -70,9 +70,9 @@ for sub=1:numSubjects
     %imageFile=strcat(subjectList{3}{sub},'/',varName1,'.nii');
     %VAM - NEW Filename matching
     varName1 = ['C' int2str(sd_pairs(i))];
-    matchStr=strcat(subjectList{3}{sub},'/AdotVol_S*_D*_',varName1,'.nii');
+    matchStr=strcat(subjectList{3}{sub},'/viewer/Subject/AdotVol_S*_D*_',varName1,'.nii');
     niiFiles=dir(matchStr);
-    imageFile=strcat(subjectList{3}{sub},'/',niiFiles(1).name);
+    imageFile=strcat(subjectList{3}{sub},'/viewer/Subject/',niiFiles(1).name);
     A_load = load_untouch_nii(imageFile);
     Adot(i,:)=reshape(A_load.img,1,[]);
     clear A_load;
