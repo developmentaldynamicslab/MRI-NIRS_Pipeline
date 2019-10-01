@@ -42,7 +42,10 @@ eval(['Data_D=importdata(''/Volumes/DRIVE10/India_Gates/NIRS/6mo/6mo_load/Worked
 
 
 
-Y=[(e(1,1)*(d*ones(1,size(Data_O,2))).*Data_O)+(e(1,2)*(d*ones(1,size(Data_D,2))).*Data_D);(e(2,1)*(d*ones(1,size(Data_O,2))).*Data_O)+(e(2,2)*(d*ones(1,size(Data_D,2))).*Data_D)]*1E-6;  %convert to molar units
+Y=[(e(1,1)*(d*ones(1,size(Data_O,2))).*Data_O)+ ...
+    (e(1,2)*(d*ones(1,size(Data_D,2))).*Data_D); ...
+    (e(2,1)*(d*ones(1,size(Data_O,2))).*Data_O)+ ...
+    (e(2,2)*(d*ones(1,size(Data_D,2))).*Data_D)]*1E-6;  %convert to molar units
 
 
 for i=1:numel(d)

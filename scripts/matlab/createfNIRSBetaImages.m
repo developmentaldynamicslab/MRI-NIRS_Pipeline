@@ -78,6 +78,8 @@ for sub=1:numSubjects
     clear A_load;
   end
 
+  e = GetExtinctions( SD.Lambda );  % You need to use the original (cm) version of e
+  
   Adot=sparse(Adot.*(Adot>eps('single')));
   L = [(e(1,1)*Adot),(e(1,2)*Adot);(e(2,1)*Adot),(e(2,2)*Adot)];
   x=zeros(size(L,2),size(Y,2));
