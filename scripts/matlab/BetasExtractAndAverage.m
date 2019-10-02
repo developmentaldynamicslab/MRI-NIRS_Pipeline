@@ -1,4 +1,4 @@
-function BetasExtractAndAverage(analysisDir, subjectListFile)
+function BetasExtractAndAverage(subjectListFile)
 % BetasExtractAndAverage(analysisDir, subjectListFile)
 %       Extracts the Betas per channel and averages
 %       the data across runs. The resulkt is a csv
@@ -41,7 +41,7 @@ for n=1:numSubjects
     
     n
     
-    inputFileStr=strcat(analysisDir, '/', subjects{n}, '*.nirs');
+    inputFileStr=strcat(subjectList{4}{n}, '/', subjects{n}, '*.nirs');
     files=dir(inputFileStr);
     
     %JPS edits
@@ -86,12 +86,12 @@ for n=1:numSubjects
         
         %% Write out the extracted betas
         %JPS edit
-        %    outputOxyFile=strcat(analysisDir, '/', filenames{r}, '_O.txt');
+        %    outputOxyFile=strcat(subjectList{4}{n}, '/', filenames{r}, '_O.txt');
         outputOxyFile=strcat(filenames{r}, '_O.txt');
         csvwrite(outputOxyFile,nanmean(O_run,3));
         
         %JPS edit
-        %    outputDeoxyFile=strcat(analysisDir, '/', filenames{r}, '_D.txt');
+        %    outputDeoxyFile=strcat(subjectList{4}{n}, '/', filenames{r}, '_D.txt');
         outputDeoxyFile=strcat(filenames{r}, '_D.txt');
         csvwrite(outputDeoxyFile,nanmean(D_run,3));
         
@@ -111,7 +111,7 @@ meanDeoxy=zeros(numChannels, numConditions);
 
 for s=1:numSubjects
     
-    inputFileStr=strcat(analysisDir, '/', subjects{s}, '*.nirs_D.txt');
+    inputFileStr=strcat(subjectList{4}{s}, '/', subjects{s}, '*.nirs_D.txt');
     files=dir(inputFileStr);
     
     filenames = {files.name};
@@ -121,7 +121,7 @@ for s=1:numSubjects
     
     %% Loop Over Runs
     for r=1:numRuns
-        inputDeoxyFile=strcat(analysisDir, '/', filenames{r});
+        inputDeoxyFile=strcat(subjectList{4}{s}, '/', filenames{r});
         deoxy(:,:, r)=load(inputDeoxyFile);
     end
     
@@ -137,7 +137,7 @@ for s=1:numSubjects
         end
     end
     
-    outputFile=strcat(analysisDir, '/Final_D_', subjects{s}, '.csv');
+    outputFile=strcat(subjectList{4}{s}, '/Final_D_', subjects{s}, '.csv');
     csvwrite(outputFile,meanDeoxy);
     
 end
@@ -145,7 +145,7 @@ end
 
 for s=1:numSubjects
     
-    inputFileStr=strcat(analysisDir, '/', subjects{s}, '*.nirs_O.txt');
+    inputFileStr=strcat(subjectList{4}{s}, '/', subjects{s}, '*.nirs_O.txt');
     files=dir(inputFileStr);
     
     filenames = {files.name};
@@ -155,7 +155,7 @@ for s=1:numSubjects
     
     %% Loop Over Runs
     for r=1:numRuns
-        inputOxyFile=strcat(analysisDir, '/', filenames{r});
+        inputOxyFile=strcat(subjectList{4}{s}, '/', filenames{r});
         oxy(:,:, r)=load(inputOxyFile);
     end
     
@@ -171,7 +171,7 @@ for s=1:numSubjects
         end
     end
     
-    outputFile=strcat(analysisDir, '/Final_O_', subjects{s}, '.csv');
+    outputFile=strcat(subjectList{4}{s}, '/Final_O_', subjects{s}, '.csv');
     csvwrite(outputFile,meanOxy);
     
 end
