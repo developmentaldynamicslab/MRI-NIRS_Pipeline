@@ -195,7 +195,8 @@ do
   -t $warpXfrm \
   -t $affineXfrm
   
-  resultClipImage="${outputDir}/${scanId}_${resultImage%.nii*}_To_Atlas_ClipToBrain.nii.gz"
+  prefixImage=`basename $i`
+  resultClipImage="${outputDir}/${scanId}_${prefixImage%.nii*}_To_Atlas_ClipToBrain.nii.gz"
   3dcalc -a $resultImage -b $resampleAtlasMask -prefix $resultClipImage -expr 'a*step(b)'
 done
 
