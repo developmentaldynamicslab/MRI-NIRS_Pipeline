@@ -6,21 +6,25 @@ subjectT1=""
 subjectBrainMask=""
 atlasT1=""
 atlasBrainMask=""
+resampleAtlas=""
+resampleAtlasMask=""
 outputDir=""
 warpImages=""
 scanId=""
 skipRegistration=0
 
-while getopts “t:s:o:a:b:i:w:hz” OPTION
+while getopts “t:s:o:a:b:c:d:i:w:hz” OPTION
 do
     case $OPTION in
       h)
-        echo "Usage: $0 -t subjectT1Image -s subjectBrainMask -a AtlasT1 -b AtlasBrainMask -o outputDir -w WarpImages"
+        echo "Usage: $0 -t subjectT1Image -s subjectBrainMask -a AtlasT1 -b AtlasBrainMask -c AtlasResImage -d AtlasResMask -o outputDir -w WarpImages"
         echo "   where"
         echo "   -t Subject T1 weighted Image"
         echo "   -s Subject Brain Mask"
         echo "   -a Atlas T1 Image"
         echo "   -b Atlas Brain Mask"
+        echo "   -c Atlas Image to define resolution of Beta Maps (Default is AtlasT1)"
+        echo "   -d Atlas Image Mask to clip Beta Maps (Default is Atlas Brain Mask)"
         echo "   -o OutputDirectory"
         echo "   -i Scan-Id (Used for naming outputs)"
         echo "   -w Additional Images to warp (Can be specified multiple times)"
@@ -43,6 +47,12 @@ do
       b)
         atlasBrainMask=$OPTARG
         ;;
+      c)
+        resampleAtlas=$OPTARG
+        ;;
+      d)
+        resampleAtlasMask=$OPTARG
+        ;;
       i)
         scanId=$OPTARG
         ;;
@@ -53,12 +63,14 @@ do
         warpImages="$warpImages $OPTARG"
         ;;
       ?)
-        echo "Usage: $0 -t subjectT1Image -s subjectBrainMask -a AtlasT1 -b AtlasBrainMask -o outputDir -w WarpImages"
+        echo "Usage: $0 -t subjectT1Image -s subjectBrainMask -a AtlasT1 -b AtlasBrainMask -c AtlasResImage -d AtlasResMask -o outputDir -w WarpImages"
         echo "   where"
         echo "   -t Subject T1 weighted Image"
         echo "   -s Subject Brain Mask"
         echo "   -a Atlas T1 Image"
         echo "   -b Atlas Brain Mask"
+        echo "   -c Atlas Image to define resolution of Beta Maps (Default is AtlasT1)"
+        echo "   -d Atlas Image Mask to clip Beta Maps (Default is Atlas Brain Mask)"
         echo "   -o OutputDirectory"
         echo "   -i Scan-Id (Used for naming outputs)"
         echo "   -w Additional Images to warp (Can be specified multiple times)"
@@ -69,6 +81,14 @@ do
     esac
 done
 
+
+if [ "$resampleAtlas" == "" ]; then
+    resampleAtlas=$atlasT1
+fi
+
+if [ "$resampleAtlasMask" == "" ]; then
+    resampleAtlasMask=$atlasBrainMask
+fi
 
 if [ ! -e $subjectT1 ]; then
     echo "ERROR: Subject T1 Image does not exist"
@@ -90,6 +110,16 @@ if [ ! -e $atlasBrainMask ]; then
     exit 1
 fi
 
+if [ ! -e $resampleAtlas ]; then
+    echo "ERROR: Atlas Resample Image does not exist"
+    exit 1
+fi
+
+if [ ! -e $resampleAtlasMask ]; then
+    echo "ERROR: Atlas Resample Mask does not exist"
+    exit 1
+fi
+
 if [ ! -e $outputDir ]; then
     echo "ERROR: Output directory does not exist"
     exit 1
@@ -104,12 +134,15 @@ echo "================Registration Parameters================"
 echo "Subject T1:        $subjectT1"
 echo "Subject Bran Mask: $subjectBrainMask"
 echo "Atlas T1:          $atlasT1"
-echo "Atlas Bran Mask:   $atlasBrainMask"
+echo "Atlas Brain Mask:  $atlasBrainMask"
+echo "Atlas Resample:    $resampleAtlas"
+echo "Atlas Clip Mask:   $resampleAtlasMask"
 echo "Scan Id:           $scanId"
 echo "Output Dir:        $outputDir"
 echo "Warp Images:       $warpImages"
 echo "Skip registration: $skipRegistration"
 echo "======================================================="
+
 
 if [ "$skipRegistration" == "0" ]; then
 antsRegistration --dimensionality 3 --float 0 \
@@ -156,11 +189,14 @@ do
   echo "Result Image: $resultImage"
   antsApplyTransforms -d 3 \
   -i $i \
-  -r $atlasT1 \
+  -r $resampleAtlas \
   -o ${resultImage} \
   -n Linear \
   -t $warpXfrm \
   -t $affineXfrm
+  
+  resultClipImage="${outputDir}/${scanId}_${resultImage%.nii*}_To_Atlas_ClipToBrain.nii.gz"
+  3dcalc -a $resultImage -b $resampleAtlasMask -prefix $resultClipImage -expr 'a*step(b)'
 done
 
 
