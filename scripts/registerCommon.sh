@@ -145,28 +145,36 @@ echo "======================================================="
 
 
 if [ "$skipRegistration" == "0" ]; then
+
+subjectMovingImage=${outputDir}/T1_ACPC_Brain.nii
+3dcalc -a $subjectBrainMask -b $subjectT1 -expr 'step(a-1)*b' -prefix $subjectMovingImage
+
+atlasFixedImage=${outputDir}/T1_Atlas_Brain.nii
+3dcalc -a $atlasBrainMask -b $atlasT1 -expr 'step(a)*b' -prefix $atlasFixedImage
+
 antsRegistration --dimensionality 3 --float 0 \
 --output [${outputDir}/${scanId}_T1_to_Atlas_,${outputDir}/${scanId}_T1_to_Atlas.nii.gz] \
 --interpolation LanczosWindowedSinc \
 --winsorize-image-intensities [0.005,0.995] \
 --use-histogram-matching 1 \
---initial-moving-transform [$atlasT1,$subjectT1,1] \
+--initial-moving-transform [$atlasFixedImage,$subjectMovingImage,1] \
 --transform Rigid[0.1] \
---metric MI[$atlasT1,$subjectT1,0.25] \
+--metric MI[$atlasFixedImage,$subjectMovingImage,0.25] \
 --convergence [1000x500x250x100,1e-6,10] \
 --shrink-factors 8x4x2x1 \
 --smoothing-sigmas 3x2x1x0vox \
 --transform Affine[0.1] \
---metric MI[$atlasT1,$subjectT1,1,32,Regular,0.25] \
+--metric MI[$atlasFixedImage,$subjectMovingImage,1,32,Regular,0.25] \
 --convergence [1000x500x250x100,1e-6,10] \
 --shrink-factors 8x4x2x1 \
 --smoothing-sigmas 3x2x1x0vox \
 --transform SyN[0.1,3,0] \
---metric CC[$atlasT1,$subjectT1,1,4] \
+--metric CC[$atlasFixedImage,$subjectMovingImage,1,4] \
 --convergence [100x70x50x20,1e-6,10] \
 --shrink-factors 8x4x2x1 \
 --smoothing-sigmas 3x2x1x0vox \
--x [$atlasBrainMask,$subjectBrainMask]
+
+# -x [$atlasBrainMask,$subjectBrainMask]
 fi
 
 affineXfrm=`ls ${outputDir}/${scanId}_T1_to_Atlas*Affine.mat`
