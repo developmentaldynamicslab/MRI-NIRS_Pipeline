@@ -146,10 +146,10 @@ echo "======================================================="
 
 if [ "$skipRegistration" == "0" ]; then
 
-subjectMovingImage=${outputDir}/T1_ACPC_Brain.nii
+subjectMovingImage=${outputDir}/${scanId}_T1_ACPC_Brain.nii
 3dcalc -a $subjectBrainMask -b $subjectT1 -expr 'step(a-1)*b' -prefix $subjectMovingImage
 
-atlasFixedImage=${outputDir}/T1_Atlas_Brain.nii
+atlasFixedImage=${outputDir}/${scanId}_T1_Atlas_Brain.nii
 3dcalc -a $atlasBrainMask -b $atlasT1 -expr 'step(a)*b' -prefix $atlasFixedImage
 
 antsRegistration --dimensionality 3 --float 0 \
