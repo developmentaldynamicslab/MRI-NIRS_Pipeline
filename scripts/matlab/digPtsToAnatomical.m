@@ -1,4 +1,4 @@
-function digPtsToAnatomical(subjectDir)
+function digPtsToAnatomical(subjectDir, anatVoxFileName)
 % digPtsToAnatomical(subjectDir) Converts the digpts file
 % to subject space. The resulting points are written out in
 % Slicer Fiducial format.
@@ -6,13 +6,13 @@ function digPtsToAnatomical(subjectDir)
 
 % Set the standard filenames used by AtlasViwer
 fwVoxFileName=strcat(subjectDir,'/fw/headvol.vox');
-anatVoxFileName=strcat(subjectDir,'/anatomical/headvol.vox');
-anatVoxFileName=strcat(subjectDir,'/anatomical/headvol.vox');
+%anatVoxFileName=strcat(subjectDir,'/anatomical/headvol.vox');
+%anatVoxFileName=strcat(subjectDir,'/anatomical/headvol.vox');
 
 
 % Basename for the output data
-%outputFile=strcat(subjectDir,'/viewer/Subject/digpts.fcsv');
-outputFile=strcat(subjectDir,'/anatomical/digptsTest.fcsv');
+outputFile=strcat(subjectDir,'/viewer/Subject/digpts.fcsv');
+%outputFile=strcat(subjectDir,'/anatomical/digptsTest.fcsv');
 
 digpts = initDigpts();
 digpts = getDigpts(digpts, subjectDir);

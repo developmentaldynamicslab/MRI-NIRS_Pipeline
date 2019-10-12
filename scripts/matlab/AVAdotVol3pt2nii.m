@@ -1,15 +1,17 @@
-function AVAdotVol3pt2nii(subjectDir, nirsFileName)
+function AVAdotVol3pt2nii(subjectDir, anatVoxFileName, nirsFileName)
 % AVAdotVol3pt2nii(subjectDir) Converts
 %       an AtlasViewer AdotVol.3pt which contains the
 %       data from the individual channels to a NIFTI
-%       image for each channel.
+%       image for each channel. The AtlasViewer subject directory
+%       anatomical image, and NIRS filename are specified as
+%       inputs.
 %
 
 
 % Set the standard filenames used by AtlasViwer
 profileFileName=strcat(subjectDir,'/fw/AdotVol.3pt');
 fwVoxFileName=strcat(subjectDir,'/fw/headvol.vox');
-anatVoxFileName=strcat(subjectDir,'/anatomical/headvol.vox');
+%anatVoxFileName=strcat(subjectDir,'/anatomical/headvol.vox');
 
 % Basename for the output data
 AdotNiftFileBase=strcat(subjectDir,'/viewer/Subject/AdotVol');
