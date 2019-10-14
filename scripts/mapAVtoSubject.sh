@@ -77,7 +77,7 @@ clear all;
 addpath(genpath('$scriptPath'));
 subjectDir='$subjectDir';
 fwHeadVol='$subjectDir/fw/headvol.vox';
-#anatHeadVol='$subjectDir/anatomical/headvol.vox';
+anatHeadVol='$anatHeadVol';
 resultHeadVol='$outputDir/headvol.nii';
 nirsFileName='$nirsFile';
 AVfwVol2AnatNii(fwHeadVol,anatHeadVol,resultHeadVol);
@@ -90,7 +90,7 @@ matlab -r "run('$matlabScript');"
 
 
 # Now threshold the images
-channelImages=`ls $outputDir/AdotVol_S*_D*_C*.nii
+channelImages=`ls $outputDir/AdotVol_S*_D*_C*.nii`
 for i in $channelImages
 do
   fName=`basename $i`
