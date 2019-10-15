@@ -56,7 +56,7 @@ for sub=1:numSubjects
     oxyName=strcat(subjectList{4}{sub},'/Final_O_', subjectList{1}{sub},'.csv');
     fileID = fopen(oxyName,'r');
     if fileID < 0
-        error 'Failed to open the NIRS beta file for reading'
+        'Failed to open the NIRS beta file for reading'
     else
                 
         oxyData=importdata(strcat(subjectList{4}{sub},'/Final_O_', subjectList{1}{sub},'.csv'));
