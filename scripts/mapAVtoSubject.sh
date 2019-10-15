@@ -90,11 +90,12 @@ matlab -r "run('$matlabScript');"
 
 
 # Now threshold the images
-channelImages=`ls $outputDir/AdotVol_S*_D*_C*.nii`
+channelImages=`ls $outputDir/AdotVol_S*_D*_C*_temp.nii`
 for i in $channelImages
 do
   fName=`basename $i`
-  channel=`echo $fName | awk -F _ '{print $4}'`
-  3dcalc -a $i -expr 'a*astep(a,0.0001)' -prefix $outputDir/AdotVol_Thresh_${channel}
+  channel=${fName%_temp.nii}
+  3dcalc -a $i -expr 'a*astep(a,0.0001)' -prefix $outputDir/${channel}.nii
 done
 
+rm -f $outputDir/AdotVol_S*_D*_C*_temp.nii

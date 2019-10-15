@@ -97,7 +97,7 @@ for i=[0:nMeas-1]
   detectorStr=int2str(detector);
   channelStr=int2str(i+1);
   disp(channelStr)
-  AdotNiftFileName=strcat(AdotNiftFileBase,'_S',sourceStr,'_D',detectorStr,'_C',channelStr,'.nii');
+  AdotNiftFileName=strcat(AdotNiftFileBase,'_S',sourceStr,'_D',detectorStr,'_C',channelStr,'_temp.nii');
 
   % Write out the NIFTI Image
   save_nii(nii, AdotNiftFileName);
