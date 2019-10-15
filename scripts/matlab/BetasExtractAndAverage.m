@@ -23,6 +23,20 @@ end
 subjectList = textscan(fileID,'%s %s %s %s %s');
 fclose(fileID)
 
+%JPS added to pull out unique subjects 
+%needed in cases where input file has multiple rows with
+%data from multiple sessions per subject
+subjectListTemp = subjectList;
+[subjects2,uindex]=unique(subjectListTemp{1,1});
+for x=1:size(subjectListTemp,2)
+    for y=1:size(uindex,1)
+        subjectList2{x}{y,1} = subjectListTemp{x}{uindex(y)};
+    end
+end
+
+clear subjectList;
+subjectList = subjectList2;
+
 subjects=subjectList{1,1};
 
 %changed to dim1 by JPS
