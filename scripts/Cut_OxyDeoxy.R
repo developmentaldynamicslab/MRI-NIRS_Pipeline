@@ -7,8 +7,8 @@ library(tidyr)
 library(dplyr)
 #To run, check packages are installed, change filepath and outputpath, then run all
 
-filepath = '/Users/nfb15zpu/Documents/J-Files/Grants/Grant_NIH_2013_NIRS/NIHVWM2019/30NIH-VWM-Y1NEW/Final_O' #where files are stored
-outputpath <- '/Users/nfb15zpu/Documents/J-Files/Grants/Grant_NIH_2013_NIRS/NIHVWM2019/30NIH-VWM-Y1NEW/Output2/' #output folder
+filepath = '/Users/nfb15zpu/Documents/J-Files/Grants/Grant_NIH_2013_NIRS/NIHVWM2019/30NIH-VWM-Y1/' #where files are stored
+outputpath <- '/Users/nfb15zpu/Documents/J-Files/Grants/Grant_NIH_2013_NIRS/NIHVWM2019/30NIH-VWM-Y1/Output2/' #output folder
 
 file_list <- list.files(filepath, '.csv')
 file_list2 <- as.list(file_list)
