@@ -5,7 +5,9 @@ function createfNIRSBetaImages(subjectListFile)
 %       fNIRS sensitivity profiles. The user provides
 %       a list of subjects to be analyzed in a file
 %       with the following format:
+%
 %       SubjectId NIRSFile ImageDir BetaDir ResultDir AnatomicalHeadVox
+%
 %       The resulting NIFTI images wre written into
 %       the ResultDir directory.
 %
