@@ -5,7 +5,7 @@ function createfNIRSBetaImages(subjectListFile)
 %       fNIRS sensitivity profiles. The user provides
 %       a list of subjects to be analyzed in a file
 %       with the following format:
-%       SubjectId NIRSFile ImageDir BetaDir ResultDir
+%       SubjectId NIRSFile ImageDir BetaDir ResultDir AnatomicalHeadVox
 %       The resulting NIFTI images wre written into
 %       the ResultDir directory. 
 %
@@ -14,7 +14,7 @@ fileID = fopen(subjectListFile,'r');
 if fileID < 0
   error 'Failed to open the subjectListFile for reading'
 end
-subjectList = textscan(fileID,'%s %s %s %s %s');
+subjectList = textscan(fileID,'%s %s %s %s %s %s');
 fclose(fileID)
 
 numSubjects=size(subjectList{1},1);

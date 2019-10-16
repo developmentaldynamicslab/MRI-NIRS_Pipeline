@@ -9,7 +9,8 @@ function BetasExtractAndAverage(subjectListFile)
 %       are the analysisDirectory and a file containing
 %       the subject list. The subject list file needs to
 %       have a five columns with the following format:
-%       SubjectId NIRSFile ImageDir BetaDir ResultDir
+%
+%       SubjectId NIRSFile ImageDir BetaDir ResultDir AnatomicalHeadVox
 %
 %       This format now matches the commands used in
 %       these steps.
@@ -20,7 +21,7 @@ if fileID < 0
     error 'Failed to open the subjectListFile for reading'
 end
 %subjectList = textscan(fileID,'%s');
-subjectList = textscan(fileID,'%s %s %s %s %s');
+subjectList = textscan(fileID,'%s %s %s %s %s %s');
 fclose(fileID)
 
 %JPS added to pull out unique subjects 
