@@ -33,8 +33,7 @@ do
   subjectDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $3}'`
   anatHeadVol=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $6}'`
 
-  mv $subjectDir/viewer $subjectDir/viewer_0001
+  mv $subjectDir/viewer $subjectDir/viewer_0.01
 
   let index+=1
 done
-
