@@ -69,7 +69,8 @@ do
   do
     fName=`basename $j`
     channel=${fName%_temp.nii}
-    3dcalc -a $j -expr 'a*astep(a,0.0001)' -prefix $outputDir/${channel}_ND.nii
+    3dcalc -a $j -expr 'a*astep(a,0.000001)' -prefix $outputDir/${channel}_ND.nii
+    #cp $j $outputDir/${channel}_ND.nii
     
     if [ $index2 == 1 ]; then
     	index2=2
