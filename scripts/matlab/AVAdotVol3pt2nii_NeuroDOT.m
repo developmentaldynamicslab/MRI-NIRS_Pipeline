@@ -51,10 +51,10 @@ if (isOctave)
 else
   load(nirsFileName,'-mat');
 end
-k = find(SD.MeasList(:,4)==1);
-probe = SD.MeasList(k,:);
-nMeas = size(probe,1);
-
+%k = find(SD.MeasList(:,4)==1);
+%probe = SD.MeasList(k,:);
+%nMeas = size(probe,1);
+nMeas = size(SD.MeasList,1);
 
 % Read the 3pt file - convert to a 3D array - Write as Nifti
 fid = fopen(profileFileName,'r');
@@ -97,7 +97,11 @@ for i=[0:nMeas-1]
   detectorStr=int2str(detector);
   channelStr=int2str(i+1);
   disp(channelStr)
-  AdotNiftFileName=strcat(AdotNiftFileBase,'_S',sourceStr,'_D',detectorStr,'_C',channelStr,'_temp.nii');
+  if (i+1 < 10)
+    AdotNiftFileName=strcat(AdotNiftFileBase,'_C0',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+  else
+    AdotNiftFileName=strcat(AdotNiftFileBase,'_C',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+  end
 
   % Write out the NIFTI Image
   save_nii(nii, AdotNiftFileName);

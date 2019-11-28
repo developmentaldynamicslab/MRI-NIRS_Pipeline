@@ -64,7 +64,7 @@ do
 
   # Now threshold the images
   index2=1
-  channelImages=`ls $outputDir/AdotVol_C*_S*_D*_temp.nii`
+  channelImages=`ls $outputDir/AdotVol_S*_D*_C*_temp.nii`
   for j in $channelImages
   do
     fName=`basename $j`
@@ -76,7 +76,7 @@ do
     	index2=2
     	3dTcat $outputDir/${channel}_ND.nii -prefix $outputDir/AdotVol_NeuroDOT.nii
     else
-    	3dTcat $outputDir/AdotVol_NeuroDOT.nii $outputDir/${channel}_ND.nii -prefix $outputDir/AdotVol_NeuroDOT_temp.nii
+    	3dTcat $outputDir/AdotVol_NeuroDOT.nii $outputDir/${channel}.nii -prefix $outputDir/AdotVol_NeuroDOT_temp.nii
     	rm $outputDir/AdotVol_NeuroDOT.nii
     	mv $outputDir/AdotVol_NeuroDOT_temp.nii $outputDir/AdotVol_NeuroDOT.nii
     fi
