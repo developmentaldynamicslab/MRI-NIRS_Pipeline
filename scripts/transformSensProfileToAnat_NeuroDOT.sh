@@ -84,7 +84,7 @@ do
   
   3dresample -dxyz 2 2 2 -prefix $outputDir/AdotVol_NeuroDOT2mm.nii -input $outputDir/AdotVol_NeuroDOT.nii
 
-  rm -f $outputDir/AdotVol_S*_D*_C*_temp.nii
+  rm -f $outputDir/AdotVol_C*_S*_D*_temp.nii
   rm -f $outputDir/*_ND.nii
 
   let index+=1
