@@ -5,6 +5,8 @@ function ImageRecon_NeuroDOT(subjectListFile)
 %% or average betas as in Homer2?
 %% --is framerate specified in the .nirs file? Would be best to read that in
 %% --need to update section below on regressors / design matrix
+%% --add code to marry up .nirs file with light model from the correct session for NIH
+
 
 
 fileID = fopen(subjectListFile,'r');
