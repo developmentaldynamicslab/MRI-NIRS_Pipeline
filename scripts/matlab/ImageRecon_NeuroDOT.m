@@ -1,14 +1,5 @@
 function ImageRecon_NeuroDOT(subjectListFile)
 
-%% John questions
-%% --create image file for each run? Need to concat over runs when running GLM
-%% or average betas as in Homer2?
-%% --is framerate specified in the .nirs file? Would be best to read that in
-%% --need to update section below on regressors / design matrix
-%% --add code to marry up .nirs file with light model from the correct session for NIH
-
-
-
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
     error 'Failed to open the subjectListFile for reading'
@@ -42,7 +33,7 @@ for n=1:numSubjects
     
     %% Loading data and setting up info structure for NeuroDOT
     imageFile=strcat(subjectList{3}{n},'/viewer/Subject/AdotVol_NeuroDOT2mm');
-
+    
     [Anii,infoAnii] = LoadVolumetricData(imageFile, [],'nii');
     Nm=size(Anii,4);
     A=reshape(Anii,[],Nm);
@@ -52,8 +43,6 @@ for n=1:numSubjects
     info.tissue.dim.Good_Vox=find(sum(A,2)>(aM*1e-5)); % set threshold here
     info.tissue.dim.sV=info.tissue.dim.mmx;
     A=A(info.tissue.dim.Good_Vox,:)';
-    imageFileND=strcat(subjectList{3}{n},'/viewer/Subject/Adot_',sID,'_nd2_2mm');
-    save(imageFileND,'A','info','-v7.3')
     
     % %%%%% Set Parameters for Processing
     params.lambda_1=0.1; %range between 0.2-0.01--smoothness vs variance
@@ -63,7 +52,6 @@ for n=1:numSubjects
     inputFileStr=strcat(subjectList{4}{n}, '/', subjects{n}, '*.nirs');
     files=dir(inputFileStr);
     
-    %JPS edits
     foldernames = {files.folder};
     files = {files.name};
     filenames = strcat(foldernames,'/',files);
@@ -74,40 +62,38 @@ for n=1:numSubjects
         
         %Get preprocessed NIRS file into NeuroDOT format
         load(filenames{r}, '-mat');
-        
-        %%%JPS: check for any hard-coded values below (e.g., 40?),
-        %%%wavelengths? 30? -- need to ensure code generalizes
-        
+                
         %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
         data=procResult.dod';
-        info.system.framerate=25;
+        meas=size(SD.MeasList,1);
+        ch=meas/2;
+        info.system.framerate=25;  %%%Can't find in .nirs file...grr. Hardcoding here.
         info.pairs=table;
         info.pairs.Src=SD.MeasList(:,1);
         info.pairs.Det=SD.MeasList(:,2);
         info.pairs.WL=SD.MeasList(:,4);
-        info.pairs.lambda=cat(1,ones(20,1).*690, ones(20,1).*830);
-        info.pairs.NN=ones(40,1);
-        info.pairs.Mod=repmat({'CW'},[40,1]);
-        info.pairs.r2d=ones(40,1).*30;
-        info.pairs.r3d=ones(40,1).*30;
+        info.pairs.lambda=cat(1,ones(ch,1).*procInput.SD.Lambda(1), ones(ch,1).*procInput.SD.Lambda(2));
+        info.pairs.NN=ones(meas,1); 
+        info.pairs.Mod=repmat({'CW'},[meas,1]);  
+        info.pairs.r2d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
+        info.pairs.r3d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
         
-        %%JPS: update based on homer book-keeping
-        info.MEAS.GI=procResult.SD.MeasListAct; %need to work out why pruning differs for different wavelengths in homer
+        if (r == 1)
+            imageFileND=strcat(subjectList{5}{n},'Adot_',sID,'_nd2_2mm');
+            save(imageFileND,'A','info','-v7.3')
+        end
         
-        %View the raw data (d) as a function of time (t)
-        % %         figure;
-        % %         subplot(2,1,1);semilogy(t,procResult.dod);xlabel('time [sec]');ylabel('\Phi')
-        % %         subplot(2,1,2);plot(t,procResult.s);xlabel('time [sec]');ylabel('Events')
+        %%update so pruning channels based on bad channels on either wavelength
+        for ct=1:ch
+            if (procResult.SD.MeasListAct(ct) == 0 | procResult.SD.MeasListAct(ct+ch) == 0)
+                procResult.SD.MeasListAct(ct) = 0;q
+                procResult.SD.MeasListAct(ct+ch) = 0;
+            end
+        end
+        info.MEAS.GI=procResult.SD.MeasListAct;
         
-        
-        %loops through all of the regressors (2-9 are counted as regressors 1-8 in
-        %the s matrix) and looks for 1s in each column to extract the time of each
-        %event How do we mark which events are omitted due to motion correction if
-        %we're pulling them directly from the s matrix?
-        
-        %%%%JPS needs to edit this section--need to figure out what we need
-        %%%%for GLM, what to store in the image recon file, etc...
-        [Nt,Nsptype]=size(procResult.s(:,1:6));
+        %%%%read in regressors (s matrix in .nirs file)...
+        [Nt,Nsptype]=size(procResult.s);
         info.paradigm.synchpts=[];
         info.paradigm.synchtype=[];
         for j=1:Nsptype
@@ -115,8 +101,6 @@ for n=1:numSubjects
             info.paradigm.synchpts=cat(1,info.paradigm.synchpts,events);
             info.paradigm.synchtype=cat(1,info.paradigm.synchtype,ones(length(events),1).*j);
         end
-        %syncpoints are like a placeholder or index for events--they just aren't coded by
-        %the type of regressor
         [info.paradigm.synchpts,idx]=sort(info.paradigm.synchpts);
         info.paradigm.synchtype=info.paradigm.synchtype(idx);
         
@@ -124,25 +108,20 @@ for n=1:numSubjects
             info.paradigm.(['Pulse_',num2str(j+1)])=find(info.paradigm.synchtype==j);
         end
         
-        info.paradigm.Pulse_1=[];
+        info.paradigm.Pulse_1=[]; %dummy regressor in NeuroDOT
         
         %% Image reconstruction
-        % %         ba_channel = BlockAverage(data,info.paradigm.synchpts(info.paradigm.Pulse_3), 300);
-        % %         figure; imagesc(data) %change colormap to view by channel
-        % %         figure; imagesc(ba_channel)
-        
         lmdata=data;
         params.rs_Hz=10;         % resample freq
         params.rs_tol=1e-5;     % resample tolerance
         [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
         
-        A=cat(1,A,A);
         Nvox=size(A,2);
         Nt=size(lmdata,2);
         cortex_mu_a=zeros(Nvox,Nt,2);
         
-        %%JPS: what is j here?
-        for j = 1:2
+        %%step through wavelengths...
+        for j = 1:size(procInput.SD.Lambda,2)
             keep = (info.pairs.WL == j) & info.MEAS.GI;
             disp('> Inverting A')
             iA = Tikhonov_invert_Amat(A(keep, :), params.lambda_1, params.lambda_2); % Invert A-Matrix
@@ -158,20 +137,10 @@ for n=1:numSubjects
         cortex_HbR = cortex_Hb(:, :, 2);
         cortex_HbT = cortex_HbO + cortex_HbR;
         
-        %% Save your data--create the nifti files with the nirs data in voxel space.
+        %% Save your data--output in ND format to save space.
         varName2 = ['run' int2str(r)];
-        oxyFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_Unmasked_oxy_ND.nii');
-        deoxyFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_Unmasked_deoxy_ND.nii');
-        NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND');
-       
+        NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND');       
         save(NDFile,'cortex_HbO','cortex_HbR','info', '-v7.3');
-        
-        % To save in nifti format, eg
-% %         HbO_Vox=Good_Vox2vol(cortex_HbO,info.tissue.dim);
-% %         SaveVolumetricData(oxyFile);
-% %         
-% %         HbR_Vox=Good_Vox2vol(cortex_HbR,info.tissue.dim);
-% %         SaveVolumetricData(deoxyFile);
         
     end
 end

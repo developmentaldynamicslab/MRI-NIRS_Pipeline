@@ -166,18 +166,30 @@ SaveVolumetricData();
 
 HbR_Vox=Good_Vox2vol(cortex_HbR,info.tissue.dim);
 SaveVolumetricData();
+
+
 %% glm your data
 load('/Users/administrator/Documents/NeuroDOT_Beta/Support_Files/GLM/hrf_DOT3.mat'); % HbO hrf
 
 %look at naming events to comp test first 
 %info.paradigm=rmfield(info.paradigm, {'Pulse_8', 'Pulse_9', 'Pulse_10',8:17);
+
+
+hrfR = hrf*-1;
+
+%iterate through for oxy, deoxy
 params.DoFilter=0;
 [b,e,DM,EDM]=GLM_181206(cortex_HbO,hrf,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every 
 figure;
 imagesc(DM);
 colormap('gray')
 
+%save beta maps for each condition...set up structure to select particular
+%conditions...
 bmap=Good_Vox2vol(b(:,3), info.tissue.dim);
+SaveVolumetricData(bmap,info.tissue.dim,outputname,pathname,'nii');
+
+
 PlotSlices(bmap, info.tissue.dim)
 
 %This function is run on the image reconstructed data but could be run in
