@@ -86,7 +86,7 @@ for n=1:numSubjects
         %%update so pruning channels based on bad channels on either wavelength
         for ct=1:ch
             if (procResult.SD.MeasListAct(ct) == 0 | procResult.SD.MeasListAct(ct+ch) == 0)
-                procResult.SD.MeasListAct(ct) = 0;q
+                procResult.SD.MeasListAct(ct) = 0;
                 procResult.SD.MeasListAct(ct+ch) = 0;
             end
         end
@@ -112,9 +112,9 @@ for n=1:numSubjects
         
         %% Image reconstruction
         lmdata=data;
-        params.rs_Hz=10;         % resample freq
-        params.rs_tol=1e-5;     % resample tolerance
-        [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
+% %         params.rs_Hz=10;         % resample freq
+% %         params.rs_tol=1e-5;     % resample tolerance
+% %         [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
         
         Nvox=size(A,2);
         Nt=size(lmdata,2);
