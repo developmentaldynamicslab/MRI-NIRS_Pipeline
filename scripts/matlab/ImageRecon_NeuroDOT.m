@@ -79,7 +79,7 @@ for n=1:numSubjects
         info.pairs.r3d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
         
         if (r == 1)
-            imageFileND=strcat(subjectList{5}{n},'Adot_',sID,'_nd2_2mm');
+            imageFileND=strcat(subjectList{5}{n},'/Adot_',sID,'_nd2_2mm');
             save(imageFileND,'A','info','-v7.3')
         end
         
