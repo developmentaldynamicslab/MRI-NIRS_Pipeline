@@ -34,13 +34,11 @@ numSubjects=size(subjects,1);
 load('hrf_DOT3.mat'); % HbO hrf
 hrfR = hrf*-1;
 numRegressors = size(regressorList,2);
-regressorList = [1, 2, 4, 5]; 
 regressorListND = regressorList+1;
 
 for n=1:numSubjects
     
-    n
-    sID=subjects{n};
+    sID=subjects{n}
     
     inputFileStr=strcat(subjectList{5}{n}, '/',sID,'*_ND.mat');
     files=dir(inputFileStr);
@@ -81,14 +79,16 @@ for n=1:numSubjects
             params.events=regressorListND;
             [bO,eO,DMO,EDMO]=GLM_181206(cortex_HbO,hrf,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
             b_HbO=b_HbO+bO;
-% %             BetaFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_HbO_',rName,'.mat');
-% %             save(BetaFile,'bO','eO','DMO','EDMO','info', '-v7.3');
+            
+            BetaFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_HbO_',rName,'.mat');
+            save(BetaFile,'bO','eO','DMO','EDMO','info', '-v7.3');
             
             params.DoFilter=0;
             [bR,eR,DMR,EDMR]=GLM_181206(cortex_HbR,hrfR,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
             b_HbR=b_HbR+bR;
-% %             BetaFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_HbR_',rName,'.mat');
-% %             save(BetaFile,'bR','eR','DMR','EDMR','info', '-v7.3');
+            
+            BetaFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_HbR_',rName,'.mat');
+            save(BetaFile,'bR','eR','DMR','EDMR','info', '-v7.3');
         end
         
     end
@@ -101,7 +101,7 @@ for n=1:numSubjects
     for bct=2:numRegressors+1
                
         pathname=subjectList{5}{n};
-        varName2 = ['cond' int2str(regressorListND(bct-1))];
+        varName2 = ['cond' int2str(regressorList(bct-1))];
         
         outputname=strcat('/',sID,'_',rName,'_',varName2,'_Unmasked_oxy_ND');
         bmap=Good_Vox2vol(b_HbO(:,bct), info.tissue.dim);
