@@ -1,4 +1,4 @@
-function RunGLM_NeuroDOT(subjectListFile)
+function RunGLM_NeuroDOT(subjectListFile,regressorStart,regressorStop,rNum,rName)
 
 %% John questions
 %% --create image file for each run. Then average beta maps per run within the same volume
@@ -30,46 +30,100 @@ subjects=subjectList{1,1};
 %changed to dim1 by JPS
 numSubjects=size(subjects,1);
 
+%% Load HRF from file
+load('hrf_DOT3.mat'); % HbO hrf
+hrfR = hrf*-1;
+numRegressors = regressorStop - regressorStart + 1;
+
 for n=1:numSubjects
     
     n
     sID=subjects{n};
-
-%% glm your data
-load('/Users/administrator/Documents/NeuroDOT_Beta/Support_Files/GLM/hrf_DOT3.mat'); % HbO hrf
-
-%look at naming events to comp test first 
-%info.paradigm=rmfield(info.paradigm, {'Pulse_8', 'Pulse_9', 'Pulse_10',8:17);
-
-
-hrfR = hrf*-1;
-
-%iterate through for oxy, deoxy
-params.DoFilter=0;
-[b,e,DM,EDM]=GLM_181206(cortex_HbO,hrf,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every 
-figure;
-imagesc(DM);
-colormap('gray')
-
-%save beta maps for each condition...set up structure to select particular
-%conditions...
-bmap=Good_Vox2vol(b(:,3), info.tissue.dim);
-SaveVolumetricData(bmap,info.tissue.dim,outputname,pathname,'nii');
-
-
-PlotSlices(bmap, info.tissue.dim)
-
-%This function is run on the image reconstructed data but could be run in
-%channel space if you change the data. 
-ba = BlockAverage(cortex_HbO,info.paradigm.synchpts(info.paradigm.Pulse_3), 300);
-% pulse = info.paradigm,synchpts(info.paradigm.Pulse_3)
-%dt = time window for regression in samples (150 would be 6 seconds)
-figure;
-imagesc(ba)
-
-
+    
+    inputFileStr=strcat(subjectList{5}{n}, '/',sID,'*_ND.mat');
+    files=dir(inputFileStr);
+    
+    foldernames = {files.folder};
+    files = {files.name};
+    filenames = strcat(foldernames,'/',files);
+    
+    numRuns=size(filenames,2);
+    
+    for r=1:numRuns
+        
         varName2 = ['run' int2str(r)];
-% %         oxyFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_Unmasked_oxy_ND.nii');
-% %         deoxyFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_Unmasked_deoxy_ND.nii');
-
-
+        NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND.mat');
+        
+        %Load NeuroDOT image file: data are voxels x time
+        load(NDFile,'-mat');
+        
+        %select regressors specified by user
+        doGLM = 0;
+% %         temp_info = info;
+% % %         info.paradigm = [];
+% % %         info.paradigm.synchpts = temp_info.paradigm.synchpts;
+% % %         info.paradigm.synchtype = temp_info.paradigm.synchtype;
+% % %         info.paradigm.Pulse_1 = temp_info.paradigm.Pulse_1
+% % %         for j=1:numRegressors
+% % %             info.paradigm.(['Pulse_',num2str(j+1)])=temp_info.paradigm.(['Pulse_',num2str(regressorStart+j)]);
+% % %             if ~isempty(info.paradigm.(['Pulse_',num2str(j+1)]))
+% % %                 doGLM = 1;
+% % %             end
+% % %         end
+% %         info.paradigm = [];
+% %         info.paradigm.synchpts = temp_info.paradigm.synchpts;
+% %         info.paradigm.synchtype = temp_info.paradigm.synchtype;
+% %         info.paradigm.Pulse_1 = temp_info.paradigm.Pulse_1
+% %         for j=1:rNum
+% %             info.paradigm.(['Pulse_',num2str(j+1)])=[];
+% %         end
+        for j=1:numRegressors
+% %             info.paradigm.(['Pulse_',num2str(regressorStart+j)])=temp_info.paradigm.(['Pulse_',num2str(regressorStart+j)]);
+            if ~isempty(info.paradigm.(['Pulse_',num2str(regressorStart+j)]))
+                doGLM = 1;
+            end
+        end
+        
+        if r == 1
+            b_HbO = zeros(size(cortex_HbO,1),5); %numRegressors+1); %add one for linear term...
+            b_HbR = zeros(size(cortex_HbR,1),5); %numRegressors+1);
+        end
+        
+        %% glm your data
+        if doGLM
+            
+            params.DoFilter=0;
+            [bO,eO,DMO,EDMO]=GLM_181206(cortex_HbO,hrf,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
+            b_HbO=b_HbO+bO;
+% %             BetaFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_HbO_',rName,'.mat');
+% %             save(BetaFile,'bO','eO','DMO','EDMO','info', '-v7.3');
+            
+            params.DoFilter=0;
+            [bR,eR,DMR,EDMR]=GLM_181206(cortex_HbR,hrfR,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
+            b_HbR=b_HbR+bR;
+% %             BetaFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_HbR_',rName,'.mat');
+% %             save(BetaFile,'bR','eR','DMR','EDMR','info', '-v7.3');
+        end
+        
+    end
+    
+    %average beta maps across runs
+    b_HbO = b_HbO / numRuns;
+    b_HbR = b_HbR / numRuns;
+    
+    %output beta mapas for each condition...
+    for bct=2:3 %1:numRegressors
+               
+        pathname='/Users/nfb15zpu/Dropbox/NeuroDOT_Project/ImageRecon_Child'; %subjectList{5}{n};
+        varName2 = ['cond' int2str(bct)];
+        
+        outputname=strcat('/',sID,'_',varName2,'_Unmasked_oxy_ND');
+        bmap=Good_Vox2vol(b_HbO(:,bct), info.tissue.dim);
+        SaveVolumetricData(bmap,info.tissue.dim,outputname,pathname,'nii');
+        
+        outputname=strcat('/',sID,'_',varName2,'_Unmasked_deoxy_ND');
+        bmap=Good_Vox2vol(b_HbR(:,bct), info.tissue.dim);
+        SaveVolumetricData(bmap,info.tissue.dim,outputname,pathname,'nii');
+         
+    end
+end
