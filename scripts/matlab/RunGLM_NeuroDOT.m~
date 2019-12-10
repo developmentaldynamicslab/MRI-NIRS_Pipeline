@@ -100,14 +100,14 @@ for n=1:numSubjects
     %output beta mapas for each condition...
     for bct=2:numRegressors+1
                
-        pathname=subjectList{5}{n};
+        pathname='/Users/nfb15zpu/Dropbox/NeuroDOT_Project/ImageRecon_Child'; %subjectList{5}{n};
         varName2 = ['cond' int2str(regressorListND(bct-1))];
         
         outputname=strcat('/',sID,'_',rName,'_',varName2,'_Unmasked_oxy_ND');
         bmap=Good_Vox2vol(b_HbO(:,bct), info.tissue.dim);
         SaveVolumetricData(bmap,info.tissue.dim,outputname,pathname,'nii');
         
-        outputname=strcat('/',sID,'_',rName,'_',varName2,'_Unmasked_deoxy_ND');
+        outputname=strcat('/',sID,'_',varName2,'_Unmasked_deoxy_ND');
         bmap=Good_Vox2vol(b_HbR(:,bct), info.tissue.dim);
         SaveVolumetricData(bmap,info.tissue.dim,outputname,pathname,'nii');
          
