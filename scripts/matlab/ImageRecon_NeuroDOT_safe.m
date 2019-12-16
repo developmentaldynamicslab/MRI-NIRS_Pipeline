@@ -59,34 +59,15 @@ for n=1:numSubjects
     numRuns=size(filenames,2);
     
     for r=1:numRuns
-
-        info.system.framerate=25;
         
         %Get preprocessed NIRS file into NeuroDOT format
         load(filenames{r}, '-mat');
-        
-        %find first and last event in s matrix -- this defines the window
-        %of data we want to reconstruct...minus 2s padding.
-        [i,j]=find(procResult.s == 1);
-        startframe = min(i) - (info.system.framerate*2);
-        if (startframe < 1)
-            startframe = 1;
-        end
-        endframe = max(i) + (info.system.framerate*2);
-        if (endframe > size(procResult.s,1))
-            endframe = size(procResult.s,1);
-        end
-        goodtime = endframe - startframe + 1;
-        new_s = zeros(goodtime,size(procResult.s,2));
-        for a=1:size(i,1)
-            new_s(i(a,1) - startframe, j(a,1)) = 1;
-        end
                 
         %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
-        data=procResult.dod(startframe:endframe,:)';
+        data=procResult.dod';
         meas=size(SD.MeasList,1);
         ch=meas/2;
-          %%%Can't find in .nirs file...grr. Hardcoding here.
+        info.system.framerate=25;  %%%Can't find in .nirs file...grr. Hardcoding here.
         info.pairs=table;
         info.pairs.Src=SD.MeasList(:,1);
         info.pairs.Det=SD.MeasList(:,2);
@@ -112,11 +93,11 @@ for n=1:numSubjects
         info.MEAS.GI=procResult.SD.MeasListAct;
         
         %%%%read in regressors (s matrix in .nirs file)...
-        [Nt,Nsptype]=size(new_s);
+        [Nt,Nsptype]=size(procResult.s);
         info.paradigm.synchpts=[];
         info.paradigm.synchtype=[];
         for j=1:Nsptype
-            events=find(new_s(:,j));
+            events=find(procResult.s(:,j));
             info.paradigm.synchpts=cat(1,info.paradigm.synchpts,events);
             info.paradigm.synchtype=cat(1,info.paradigm.synchtype,ones(length(events),1).*j);
         end
