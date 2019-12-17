@@ -1,4 +1,4 @@
-function ImageRecon_NeuroDOT(subjectListFile)
+function ImageRecon_NeuroDOT(subjectListFile,newSamplingFreq)
 
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
@@ -59,27 +59,27 @@ for n=1:numSubjects
     numRuns=size(filenames,2);
     
     for r=1:numRuns
-
-        info.system.framerate=25;
-        
+       
         %Get preprocessed NIRS file into NeuroDOT format
         load(filenames{r}, '-mat');
         
         %find first and last event in s matrix -- this defines the window
-        %of data we want to reconstruct...minus 2s padding.
+        %of data we want to reconstruct...minus 20s padding.
+        info.system.framerate=25;
+        padding = 20;
         [i,j]=find(procResult.s == 1);
-        startframe = min(i) - (info.system.framerate*2);
+        startframe = min(i) - (info.system.framerate*padding);
         if (startframe < 1)
             startframe = 1;
         end
-        endframe = max(i) + (info.system.framerate*2);
+        endframe = max(i) + (info.system.framerate*padding);
         if (endframe > size(procResult.s,1))
             endframe = size(procResult.s,1);
         end
         goodtime = endframe - startframe + 1;
         new_s = zeros(goodtime,size(procResult.s,2));
         for a=1:size(i,1)
-            new_s(i(a,1) - startframe, j(a,1)) = 1;
+            new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
         end
                 
         %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
@@ -96,6 +96,8 @@ for n=1:numSubjects
         info.pairs.Mod=repmat({'CW'},[meas,1]);  
         info.pairs.r2d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
         info.pairs.r3d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
+        
+        %%%%%%%%%%%%%%%%% UPDATE METADATA?
         
         if (r == 1)
             imageFileND=strcat(subjectList{5}{n},'/Adot_',sID,'_nd2_2mm');
@@ -131,9 +133,12 @@ for n=1:numSubjects
         
         %% Image reconstruction
         lmdata=data;
-% %         params.rs_Hz=10;         % resample freq
-% %         params.rs_tol=1e-5;     % resample tolerance
-% %         [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
+        
+        if (newSamplingFreq ~= info.system.framerate)
+            params.rs_Hz=newSamplingFreq;         % resample freq
+            params.rs_tol=1e-5;     % resample tolerance
+            [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
+        end
         
         Nvox=size(A,2);
         Nt=size(lmdata,2);
