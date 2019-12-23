@@ -28,8 +28,7 @@ numSubjects=size(subjects,1);
 
 for n=1:numSubjects
     
-    n
-    sID=subjects{n};
+    sID=subjects{n}
     
     %% Loading data and setting up info structure for NeuroDOT
     imageFile=strcat(subjectList{3}{n},'/viewer/Subject/AdotVol_NeuroDOT2mm');
