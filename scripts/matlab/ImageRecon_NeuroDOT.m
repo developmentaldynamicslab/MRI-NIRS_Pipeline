@@ -134,6 +134,10 @@ for n=1:numSubjects
         lmdata=data;
         
         if (newSamplingFreq ~= info.system.framerate)
+            
+            if isfield(info.paradigm,'init_synchpts')
+                info.paradigm = rmfield(info.paradigm,'init_synchpts');
+            end            
             params.rs_Hz=newSamplingFreq;         % resample freq
             params.rs_tol=1e-5;     % resample tolerance
             [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
