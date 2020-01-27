@@ -19,14 +19,14 @@ do
       h)
         echo "Usage: $0 -t subjectT1Image -s subjectBrainMask -a AtlasT1 -b AtlasBrainMask -c AtlasResImage -d AtlasResMask -o outputDir -w WarpImages"
         echo "   where"
-        echo "   -t Subject T1 weighted Image"
-        echo "   -s Subject Brain Mask"
+        echo "   -t T1 weighted Image used for fNIRS analysis"
+        echo "   -s T1 Brain Mask used for fNIRS analysis"
         echo "   -a Atlas T1 Image"
         echo "   -b Atlas Brain Mask"
         echo "   -c Atlas Image to define resolution of Beta Maps (Default is AtlasT1)"
         echo "   -d Atlas Image Mask to clip Beta Maps (Default is Atlas Brain Mask)"
         echo "   -o OutputDirectory"
-        echo "   -i Scan-Id (Used for naming outputs)"
+        echo "   -i AnatomicalLabel (Used for naming anatomical transforms)"
         echo "   -w Additional Images to warp (Can be specified multiple times)"
         echo "   -z Skip Registration (Just apply transform to additional warp images)"
         echo "   -h Display help message"
@@ -65,14 +65,14 @@ do
       ?)
         echo "Usage: $0 -t subjectT1Image -s subjectBrainMask -a AtlasT1 -b AtlasBrainMask -c AtlasResImage -d AtlasResMask -o outputDir -w WarpImages"
         echo "   where"
-        echo "   -t Subject T1 weighted Image"
-        echo "   -s Subject Brain Mask"
+        echo "   -t T1 weighted Image used for fNIRS analysis"
+        echo "   -s T1 Brain Mask used for fNIRS analysis"
         echo "   -a Atlas T1 Image"
         echo "   -b Atlas Brain Mask"
         echo "   -c Atlas Image to define resolution of Beta Maps (Default is AtlasT1)"
         echo "   -d Atlas Image Mask to clip Beta Maps (Default is Atlas Brain Mask)"
         echo "   -o OutputDirectory"
-        echo "   -i Scan-Id (Used for naming outputs)"
+        echo "   -i AnatomicalLabel (Used for naming anatomical transforms)"
         echo "   -w Additional Images to warp (Can be specified multiple times)"
         echo "   -z Skip Registration (Just apply transform to additional warp images)"
         echo "   -h Display help message"
@@ -146,33 +146,33 @@ echo "======================================================="
 
 if [ "$skipRegistration" == "0" ]; then
 
-subjectMovingImage=${outputDir}/${scanId}_T1_ACPC_Brain.nii
-3dcalc -a $subjectBrainMask -b $subjectT1 -expr 'step(a-1)*b' -prefix $subjectMovingImage
+  subjectMovingImage=${outputDir}/${scanId}_T1_ACPC_Brain.nii
+  3dcalc -a $subjectBrainMask -b $subjectT1 -expr 'step(a-1)*b' -prefix $subjectMovingImage
 
-atlasFixedImage=${outputDir}/${scanId}_T1_Atlas_Brain.nii
-3dcalc -a $atlasBrainMask -b $atlasT1 -expr 'step(a)*b' -prefix $atlasFixedImage
+  atlasFixedImage=${outputDir}/${scanId}_T1_Atlas_Brain.nii
+  3dcalc -a $atlasBrainMask -b $atlasT1 -expr 'step(a)*b' -prefix $atlasFixedImage
 
-antsRegistration --dimensionality 3 --float 0 \
---output [${outputDir}/${scanId}_T1_to_Atlas_,${outputDir}/${scanId}_T1_to_Atlas.nii.gz] \
---interpolation LanczosWindowedSinc \
---winsorize-image-intensities [0.005,0.995] \
---use-histogram-matching 1 \
---initial-moving-transform [$atlasFixedImage,$subjectMovingImage,1] \
---transform Rigid[0.1] \
---metric MI[$atlasFixedImage,$subjectMovingImage,0.25] \
---convergence [1000x500x250x100,1e-6,10] \
---shrink-factors 8x4x2x1 \
---smoothing-sigmas 3x2x1x0vox \
---transform Affine[0.1] \
---metric MI[$atlasFixedImage,$subjectMovingImage,1,32,Regular,0.25] \
---convergence [1000x500x250x100,1e-6,10] \
---shrink-factors 8x4x2x1 \
---smoothing-sigmas 3x2x1x0vox \
---transform SyN[0.1,3,0] \
---metric CC[$atlasFixedImage,$subjectMovingImage,1,4] \
---convergence [100x70x50x20,1e-6,10] \
---shrink-factors 8x4x2x1 \
---smoothing-sigmas 3x2x1x0vox \
+  antsRegistration --dimensionality 3 --float 0 \
+  --output [${outputDir}/${scanId}_T1_to_Atlas_,${outputDir}/${scanId}_T1_to_Atlas.nii.gz] \
+  --interpolation LanczosWindowedSinc \
+  --winsorize-image-intensities [0.005,0.995] \
+  --use-histogram-matching 1 \
+  --initial-moving-transform [$atlasFixedImage,$subjectMovingImage,1] \
+  --transform Rigid[0.1] \
+  --metric MI[$atlasFixedImage,$subjectMovingImage,0.25] \
+  --convergence [1000x500x250x100,1e-6,10] \
+  --shrink-factors 8x4x2x1 \
+  --smoothing-sigmas 3x2x1x0vox \
+  --transform Affine[0.1] \
+  --metric MI[$atlasFixedImage,$subjectMovingImage,1,32,Regular,0.25] \
+  --convergence [1000x500x250x100,1e-6,10] \
+  --shrink-factors 8x4x2x1 \
+  --smoothing-sigmas 3x2x1x0vox \
+  --transform SyN[0.1,3,0] \
+  --metric CC[$atlasFixedImage,$subjectMovingImage,1,4] \
+  --convergence [100x70x50x20,1e-6,10] \
+  --shrink-factors 8x4x2x1 \
+  --smoothing-sigmas 3x2x1x0vox \
 
 # -x [$atlasBrainMask,$subjectBrainMask]
 fi
@@ -193,7 +193,7 @@ fi
 for i in $warpImages
 do
   resultImage=`basename $i`
-  resultImage="${outputDir}/${scanId}_${resultImage%.nii*}_To_Atlas.nii.gz"
+  resultImage="${outputDir}/${resultImage%.nii*}_To_Atlas.nii.gz"
   echo "Result Image: $resultImage"
   antsApplyTransforms -d 3 \
   -i $i \
@@ -204,7 +204,7 @@ do
   -t $affineXfrm
   
   prefixImage=`basename $i`
-  resultClipImage="${outputDir}/${scanId}_${prefixImage%.nii*}_To_Atlas_ClipToBrain.nii.gz"
+  resultClipImage="${outputDir}/${prefixImage%.nii*}_To_Atlas_ClipToBrain.nii.gz"
   3dcalc -a $resultImage -b $resampleAtlasMask -prefix $resultClipImage -expr 'a*step(b)'
 done
 
