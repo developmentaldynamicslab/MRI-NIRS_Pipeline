@@ -66,8 +66,10 @@ do
   # Get the T1 image for registration and Brain Mask
   #   This matching could be modified to support additional types
   #   of images and masks
-  subjectT1=`ls $subjectResultDir/*headvol.nii`
-  subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
+  #subjectT1=`ls $subjectResultDir/*headvol.nii`
+  #subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
+  subjectT1=$subjectResultDir/32Month_headvol.nii
+  subjectBrainMask=$subjectResultDir/32Month_headvol.nii
   
   echo "Subject T1: $subjectT1"
   echo "Subject Mask: $subjectBrainMask"
