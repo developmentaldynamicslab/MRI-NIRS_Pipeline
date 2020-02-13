@@ -33,8 +33,10 @@ do
   subjectDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $3}'`
   anatHeadVol=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $6}'`
 
-  mkdir /Volumes/PegasusDDLab/HWB_Data/{$i}_MC
-  cp $subjectDir/viewer/Subject/AdotVol_NeuroDOT2mm.nii /Volumes/PegasusDDLab/HWB_Data/{$i}_MC/viewer/Subject/AdotVol_NeuroDOT2mm.nii
+#  mkdir /Volumes/PegasusDDLab/HWB_Data/{$i}_MC
+#  cp $subjectDir/viewer/Subject/AdotVol_NeuroDOT2mm.nii /Volumes/PegasusDDLab/HWB_Data/#{$i}_MC/viewer/#Subject/AdotVol_NeuroDOT2mm.nii
+
+  cp $subjectDir.txt/viewer/Subject/headvol.nii /Volumes/Sara_G-Drive/ImageRecon_Child/${i}_headvol.nii
 
   let index+=1
 done

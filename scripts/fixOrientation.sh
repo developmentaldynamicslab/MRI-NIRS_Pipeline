@@ -59,9 +59,12 @@ echo $subjectT1
 if [ ! -e $subjectDir/orig ]; then
   mkdir $subjectDir/orig
 fi
+if [ ! -e $subjectDir/orig2 ]; then
+  mkdir $subjectDir/orig2
+fi
 t1name=`basename $subjectT1`
-mv $subjectT1 $subjectDir/orig/.
-subjectT1Orig=$subjectDir/orig/$t1name
+cp $subjectT1 $subjectDir/orig2/.
+subjectT1Orig=$subjectDir/orig2/$t1name
 
 srowX=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_x) )
 srowY=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_y) )
@@ -90,7 +93,8 @@ cmd=`echo "nifti_tool -mod_hdr -mod_field srow_x $rowX -mod_field srow_y $rowY -
 eval $cmd
 
 
-warpImages=`ls ${subjectDir}/*oxy*.nii`
+#warpImages=`ls ${subjectDir}/*oxy*.nii`
+warpImages=`ls ${subjectDir}/*.nii`
 for i in $warpImages
 do
   imageName=`basename $i`

@@ -68,8 +68,8 @@ do
   #   of images and masks
   #subjectT1=`ls $subjectResultDir/*headvol.nii`
   #subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
-  subjectT1=$subjectResultDir/32Month_headvol.nii
-  subjectBrainMask=$subjectResultDir/32Month_headvol.nii
+  subjectT1=$subjectResultDir/${i}_headvol.nii
+  subjectBrainMask=$subjectResultDir/${i}_headvol.nii
   
   echo "Subject T1: $subjectT1"
   echo "Subject Mask: $subjectBrainMask"
