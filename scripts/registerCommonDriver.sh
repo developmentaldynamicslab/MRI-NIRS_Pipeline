@@ -47,7 +47,7 @@ do
   fNIRSAtlasLabel=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $11}'`
   subjectHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $12}'`
   atlasHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $13}'`
-  
+
   echo "Subject Id: $subjectId"
   echo "NIRS File: $NIRSfile"
   echo "Subject Dir: $subjectDir"
@@ -61,35 +61,35 @@ do
   echo "Atlas Label: $fNIRSAtlasLabel"
   echo "Subject Hseg: $subjectHsegMask"
   echo "Atlas Hseg: $atlasHsegMask"
-  
-  
+
+
   # Get the T1 image for registration and Brain Mask
   #   This matching could be modified to support additional types
   #   of images and masks
   #subjectT1=`ls $subjectResultDir/*headvol.nii`
   #subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
-  subjectT1=$subjectResultDir/${i}_headvol.nii
-  subjectBrainMask=$subjectResultDir/${i}_headvol.nii
-  
+  subjectT1=$subjectDir/viewer/Subject/headvol.nii
+  subjectBrainMask=$subjectDir/viewer/Subject/headvol.nii
+
   echo "Subject T1: $subjectT1"
   echo "Subject Mask: $subjectBrainMask"
-  
+
   if [ $atlasType != "AtlasW" ]; then
-  
+
     subjectMovingImage=${commonResultDir}/${fNIRSAtlasLabel}_T1_ACPC_Brain.nii
     if [ "${subjectHsegMask}" == "1" ]; then
       3dcalc -a $subjectBrainMask -b $subjectT1 -expr 'step(a-1)*b' -prefix $subjectMovingImage
     else
       3dcalc -a $subjectBrainMask -b $subjectT1 -expr 'step(a)*b' -prefix $subjectMovingImage
     fi
-    
+
     atlasFixedImage=${commonResultDir}/${fNIRSAtlasLabel}_T1_Atlas_Brain.nii
     if [ "${atlasHsegMask}" == "1" ]; then
       3dcalc -a $atlasMask -b $atlasImage -expr 'step(a-1)*b' -prefix $atlasFixedImage
     else
       3dcalc -a $atlasMask -b $atlasImage -expr 'step(a)*b' -prefix $atlasFixedImage
     fi
-    
+
     antsRegistration --dimensionality 3 --float 0 \
     --output [${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas_,${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas.nii.gz] \
     --interpolation LanczosWindowedSinc \
@@ -112,7 +112,7 @@ do
     --shrink-factors 8x4x2x1 \
     --smoothing-sigmas 3x2x1x0vox
   fi
- 
+
   affineXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*Affine.mat`
   if [ "$affineXfrm" == "" ]; then
       echo "ERROR: Failed to find resulting Affine transform from ANTS registration."
@@ -138,7 +138,7 @@ do
     -n Linear \
     -t $warpXfrm \
     -t $affineXfrm
-    
+
     resultClipImage="${resultImage%.nii*}_To_Atlas_ClipToBrain.nii.gz"
     if [ "${atlasHsegMask}" == "1" ]; then
       3dcalc -a $resultImage -b $atlasMask -expr 'a*step(b-1)' -prefix $resultClipImage
@@ -148,5 +148,3 @@ do
   done
   let index+=1
 done
-
-
