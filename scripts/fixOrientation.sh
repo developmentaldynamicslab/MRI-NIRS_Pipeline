@@ -140,8 +140,7 @@ echo "${dir1}${dir2}${dir3} $subjectT1"
 3drefit -orient ${dir1}${dir2}${dir3} $subjectT1
 
 
-
-warpImages=`ls ${subjectDir}/*oxy*.nii`
+warpImages=`ls ${subjectDir}/*.nii`
 for i in $warpImages
 do
   imageName=`basename $i`
@@ -229,71 +228,3 @@ done
 
 exit
   
-
-
-
-
-############ T1 Image ###################
-subjectT1Orig=$subjectDir/orig/$t1name
-
-srowX=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_x) )
-srowY=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_y) )
-srowZ=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_z) )
-
-if [ "$flipRL" == "1" ]; then
-  srowX[3]=`echo ${srowX[3]} | awk '{print $1 * -1.0}'`
-fi
-
-if [ "$flipAP" == "1" ]; then
-  srowY[4]=`echo ${srowY[4]} | awk '{print $1 * -1.0}'`
-fi
-
-if [ "$flipSI" == "1" ]; then
-  srowZ[5]=`echo ${srowZ[5]} | awk '{print $1 * -1.0}'`
-fi
-
-rowX=`echo "'${srowX[3]} ${srowX[4]} ${srowX[5]} ${srowX[6]}'"`
-rowY=`echo "'${srowY[3]} ${srowY[4]} ${srowY[5]} ${srowY[6]}'"`
-rowZ=`echo "'${srowZ[3]} ${srowZ[4]} ${srowZ[5]} ${srowZ[6]}'"`
-echo $rowX
-echo $rowY
-echo $rowZ
-
-cmd=`echo "nifti_tool -mod_hdr -mod_field srow_x $rowX -mod_field srow_y $rowY -mod_field srow_z $rowZ -prefix $subjectT1 -infiles $subjectT1Orig"`
-eval $cmd
-
-
-
-############ Beta Images ###################
-srowX=( $(nifti_tool -disp_hdr -infiles $origImage | grep srow_x) )
-srowY=( $(nifti_tool -disp_hdr -infiles $origImage | grep srow_y) )
-srowZ=( $(nifti_tool -disp_hdr -infiles $origImage | grep srow_z) )
-
-if [ "$flipRL" == "1" ]; then
-  srowX[3]=`echo ${srowX[3]} | awk '{print $1 * -1.0}'`
-  srowX[6]=`echo ${srowX[6]} | awk '{print $1 * -1.0}'`
-fi
-
-if [ "$flipAP" == "1" ]; then
-  srowY[4]=`echo ${srowY[4]} | awk '{print $1 * -1.0}'`
-  srowY[6]=`echo ${srowY[6]} | awk '{print $1 * -1.0}'`
-fi
-
-if [ "$flipSI" == "1" ]; then
-  srowZ[5]=`echo ${srowZ[5]} | awk '{print $1 * -1.0}'`
-  srowZ[6]=`echo ${srowZ[6]} | awk '{print $1 * -1.0}'`
-fi
-
-rowX=`echo "'${srowX[3]} ${srowX[4]} ${srowX[5]} ${srowX[6]}'"`
-rowY=`echo "'${srowY[3]} ${srowY[4]} ${srowY[5]} ${srowY[6]}'"`
-rowZ=`echo "'${srowZ[3]} ${srowZ[4]} ${srowZ[5]} ${srowZ[6]}'"`
-echo $rowX
-echo $rowY
-echo $rowZ
-
-cmd=`echo "nifti_tool -mod_hdr -mod_field srow_x $rowX -mod_field srow_y $rowY -mod_field srow_z $rowZ -prefix $i -infiles $origImage"`
-eval $cmd
-
-
-
-/opt/afni/3drefit -orient LAS ../../32HWB042/orig/tmp.nii
