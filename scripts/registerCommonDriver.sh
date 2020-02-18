@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin:/opt/afni
+# VAM - Testing Paths
+#export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin:/opt/afni
 
 # Setup Evironmental Variables
 scriptPath=`dirname $0`
@@ -124,6 +125,7 @@ do
   fi
 
   warpImages=`ls ${subjectResultDir}/${subjectId}*oxy*.nii`
+  #warpImages=`ls ${subjectResultDir}/${subjectId}_headvol.nii`
   for i in $warpImages
   do
     resultImage=`basename $i`
