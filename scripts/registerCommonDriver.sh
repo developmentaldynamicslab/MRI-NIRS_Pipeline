@@ -68,8 +68,8 @@ do
   #   of images and masks
   #subjectT1=`ls $subjectResultDir/*headvol.nii`
   #subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
-  subjectT1=$subjectDir/viewer/Subject/headvol.nii
-  subjectBrainMask=$subjectDir/viewer/Subject/headvol.nii
+  subjectT1=$subjectDir/T1_RAS.nii
+  subjectBrainMask=$subjectDir/T1_Mask.nii
 
   echo "Subject T1: $subjectT1"
   echo "Subject Mask: $subjectBrainMask"
@@ -139,7 +139,7 @@ do
     -t $warpXfrm \
     -t $affineXfrm
 
-    resultClipImage="${resultImage%.nii*}_To_Atlas_ClipToBrain.nii.gz"
+    resultClipImage="${resultImage%.nii*}_ClipToBrain.nii.gz"
     if [ "${atlasHsegMask}" == "1" ]; then
       3dcalc -a $resultImage -b $atlasMask -expr 'a*step(b-1)' -prefix $resultClipImage
     else
