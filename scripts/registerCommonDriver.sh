@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # VAM - Testing Paths
-#export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin:/opt/afni
+export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin:/opt/afni
 
 # Setup Evironmental Variables
 scriptPath=`dirname $0`
@@ -69,8 +69,8 @@ do
   #   of images and masks
   #subjectT1=`ls $subjectResultDir/*headvol.nii`
   #subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
-  subjectT1=$subjectDir/T1_RAS.nii
-  subjectBrainMask=$subjectDir/T1_Mask.nii
+  subjectT1=$subjectDir/T1_RAS_ACPC.nii
+  subjectBrainMask=$subjectDir/hseg.nii
 
   echo "Subject T1: $subjectT1"
   echo "Subject Mask: $subjectBrainMask"
