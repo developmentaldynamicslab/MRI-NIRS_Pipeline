@@ -8,12 +8,12 @@ cd /Users/nfb15zpu/Documents/J-Files/Grants/Grant_GatesFoundation_Phase2/Analysi
 for subj in $subjlist
 do
 
-3dcalc -a BetaY1_${subj}_cond1_Unmasked_oxy_To_Atlas_CliptoBrain.nii.gz \
-	-b BetaY1_${subj}_cond2_Unmasked_oxy_To_Atlas_CliptoBrain.nii.gz \
-	-c BetaY1_${subj}_cond3_Unmasked_oxy_To_Atlas_CliptoBrain.nii.gz \
-	-d BetaY2_${subj}_cond1_Unmasked_oxy_To_Atlas_CliptoBrain.nii.gz \
-	-e BetaY2_${subj}_cond2_Unmasked_oxy_To_Atlas_CliptoBrain.nii.gz \
-	-f BetaY2_${subj}_cond3_Unmasked_oxy_To_Atlas_CliptoBrain.nii.gz -expr 'ispositive(abs(a)+abs(b)+abs(c)+abs(d)+abs(e)+abs(f))' -prefix NIRS_Mask.nii
+3dcalc -a BetaY1_${subj}_cond1_Unmasked_oxy_ND_To_Atlas_CliptoBrain.nii.gz \
+	-b BetaY1_${subj}_cond2_Unmasked_oxy_ND_To_Atlas_CliptoBrain.nii.gz \
+	-c BetaY1_${subj}_cond3_Unmasked_oxy_ND_To_Atlas_CliptoBrain.nii.gz \
+	-d BetaY2_${subj}_cond1_Unmasked_oxy_ND_To_Atlas_CliptoBrain.nii.gz \
+	-e BetaY2_${subj}_cond2_Unmasked_oxy_ND_To_Atlas_CliptoBrain.nii.gz \
+	-f BetaY2_${subj}_cond3_Unmasked_oxy_ND_To_Atlas_CliptoBrain.nii.gz -expr 'ispositive(abs(a)+abs(b)+abs(c)+abs(d)+abs(e)+abs(f))' -prefix NIRS_Mask.nii
 
 done
 
