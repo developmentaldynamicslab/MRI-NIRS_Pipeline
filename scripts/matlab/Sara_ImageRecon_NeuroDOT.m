@@ -15,11 +15,14 @@ else
   firstLine=1;
   while ischar(tline)
       tmp=strsplit(tline)
+      if (size(tmp{1}) == 0)
+        break
+      end
       if (firstLine == 1)
         subjectList=tmp;
         firstLine=0;
-      else
         numItems=size(tmp);
+      else
         for i=1:numItems(2)
           subjectList{i}=[subjectList{i};{tmp{i}}];
         end
@@ -27,7 +30,6 @@ else
       tline = fgetl(fileID);
   end
 end
-
 fclose(fileID);
 
 %JPS added to pull out unique subjects
