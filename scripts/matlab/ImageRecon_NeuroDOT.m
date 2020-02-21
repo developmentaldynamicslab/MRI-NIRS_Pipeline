@@ -37,18 +37,19 @@ fclose(fileID);
 %needed in cases where input file has multiple rows with
 %data from multiple sessions per subject
 subjectListTemp = subjectList;
-[subjects2,uindex]=unique(subjectListTemp{1});
+[subjects2,uindex]=unique(subjectListTemp{1,1});
 for x=1:size(subjectListTemp,2)
     for y=1:size(uindex,1)
-        subjectList2{x}{y} = subjectListTemp{x}{uindex(y)};
+        subjectList2{x}{y,1} = subjectListTemp{x}{uindex(y)};
     end
 end
 
 clear subjectList;
 subjectList = subjectList2;
 
-subjects=subjectList{1};
+subjects=subjectList{1,1};
 
+%changed to dim1 by JPS
 numSubjects=size(subjects,1);
 
 for n=1:numSubjects
