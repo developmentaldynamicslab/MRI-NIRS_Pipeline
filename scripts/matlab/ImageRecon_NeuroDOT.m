@@ -1,10 +1,36 @@
 function ImageRecon_NeuroDOT(subjectListFile,newSamplingFreq)
 
+
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
     error 'Failed to open the subjectListFile for reading'
 end
-subjectList = textscan(fileID,'%s %s %s %s %s %s');
+
+%VAM - Update to support updates to the driver file
+%   set useLegacyCode=1 to revert back to old behavior
+useLegacyCode = 0;
+if ( useLegacyCode )
+  subjectList = textscan(fileID,'%s %s %s %s %s %s');
+else
+  tline = fgetl(fileID);
+  firstLine=1;
+  while ischar(tline)
+      tmp=strsplit(tline);
+      if (size(tmp{1}) == 0)
+        break
+      end
+      if (firstLine == 1)
+        subjectList=tmp;
+        firstLine=0;
+        numItems=size(tmp);
+      else
+        for i=1:numItems(2)
+          subjectList{i}=[subjectList{i};{tmp{i}}];
+        end
+      end
+      tline = fgetl(fileID);
+  end
+end
 fclose(fileID);
 
 %JPS added to pull out unique subjects

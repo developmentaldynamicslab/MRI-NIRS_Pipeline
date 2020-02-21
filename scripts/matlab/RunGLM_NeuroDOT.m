@@ -10,19 +10,22 @@ end
 
 %VAM - Update to support updates to the driver file
 %   set useLegacyCode=1 to revert back to old behavior
-useLegacyCode = 0;
+useLegacyCode = 1;
 if ( useLegacyCode )
-  subjectList = textscan(fileID,'%s %s %s %s %s %s');
+  subjectList = textscan(fileID,'%s %s %s %s %s %s %s %s %s %s %s %s %s');
 else
   tline = fgetl(fileID);
   firstLine=1;
   while ischar(tline)
-      tmp=strsplit(tline)
+      tmp=strsplit(tline);
+      if (size(tmp{1}) == 0)
+        break
+      end
       if (firstLine == 1)
         subjectList=tmp;
         firstLine=0;
-      else
         numItems=size(tmp);
+      else
         for i=1:numItems(2)
           subjectList{i}=[subjectList{i};{tmp{i}}];
         end
@@ -30,7 +33,6 @@ else
       tline = fgetl(fileID);
   end
 end
-
 fclose(fileID);
 
 %JPS added to pull out unique subjects
@@ -49,7 +51,9 @@ subjectList = subjectList2;
 
 subjects=subjectList{1,1};
 
+%changed to dim1 by JPS
 numSubjects=size(subjects,1);
+
 
 %% Load HRF from file
 load('hrf_DOT3.mat'); % HbO hrf
