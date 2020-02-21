@@ -1,6 +1,9 @@
 #!/bin/bash
 
+<<<<<<< HEAD
 # VAM - Testing Paths
+=======
+>>>>>>> parent of 9faf0f6... UPD: Corrected the fixOrientation script and verified it
 export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin:/opt/afni
 
 # Setup Evironmental Variables
@@ -127,7 +130,6 @@ do
   fi
 
   warpImages=`ls ${subjectResultDir}/${subjectId}*oxy*.nii`
-  #warpImages=`ls ${subjectResultDir}/${subjectId}_headvol.nii`
   for i in $warpImages
   do
     resultImage=`basename $i`

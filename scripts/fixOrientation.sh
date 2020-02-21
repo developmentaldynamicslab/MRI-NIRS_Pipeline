@@ -50,17 +50,17 @@ if [[ $afniProg == "" ]]; then
   exit 1
 fi
 
+
+
 subjectT1=`ls $subjectDir/*headvol.nii`
-if [ "$subjectT1" == "" ]; then
-  echo "ERROR: Failed to find the subject T1 weighted scan"
-  exit
-fi
+echo $subjectT1
+
 
 if [ ! -e $subjectDir/orig ]; then
   mkdir $subjectDir/orig
 fi
-
 t1name=`basename $subjectT1`
+<<<<<<< HEAD
 cp $subjectT1 $subjectDir/orig/.
 
 apDir=`3dinfo $subjectT1 | grep Posterior | awk '{print $1}'`
@@ -222,9 +222,78 @@ do
   fi
 
   3drefit -orient ${dir1}${dir2}${dir3} $i
+=======
+mv $subjectT1 $subjectDir/orig/.
+subjectT1Orig=$subjectDir/orig/$t1name
+
+srowX=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_x) )
+srowY=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_y) )
+srowZ=( $(nifti_tool -disp_hdr -infiles $subjectT1Orig | grep srow_z) )
+
+if [ "$flipRL" == "1" ]; then
+  srowX[3]=`echo ${srowX[3]} | awk '{print $1 * -1.0}'`
+fi
+
+if [ "$flipAP" == "1" ]; then
+  srowY[4]=`echo ${srowY[4]} | awk '{print $1 * -1.0}'`
+fi
+
+if [ "$flipSI" == "1" ]; then
+  srowZ[5]=`echo ${srowZ[5]} | awk '{print $1 * -1.0}'`
+fi
+
+rowX=`echo "'${srowX[3]} ${srowX[4]} ${srowX[5]} ${srowX[6]}'"`
+rowY=`echo "'${srowY[3]} ${srowY[4]} ${srowY[5]} ${srowY[6]}'"`
+rowZ=`echo "'${srowZ[3]} ${srowZ[4]} ${srowZ[5]} ${srowZ[6]}'"`
+echo $rowX
+echo $rowY
+echo $rowZ
+
+cmd=`echo "nifti_tool -mod_hdr -mod_field srow_x $rowX -mod_field srow_y $rowY -mod_field srow_z $rowZ -prefix $subjectT1 -infiles $subjectT1Orig"`
+eval $cmd
+
+
+warpImages=`ls ${subjectDir}/*oxy*.nii`
+for i in $warpImages
+do
+  imageName=`basename $i`
+  mv $i $subjectDir/orig/.
+  
+  origImage=$subjectDir/orig/$imageName
+
+  srowX=( $(nifti_tool -disp_hdr -infiles $origImage | grep srow_x) )
+  srowY=( $(nifti_tool -disp_hdr -infiles $origImage | grep srow_y) )
+  srowZ=( $(nifti_tool -disp_hdr -infiles $origImage | grep srow_z) )
+
+  if [ "$flipRL" == "1" ]; then
+    srowX[3]=`echo ${srowX[3]} | awk '{print $1 * -1.0}'`
+  fi
+
+  if [ "$flipAP" == "1" ]; then
+    srowY[4]=`echo ${srowY[4]} | awk '{print $1 * -1.0}'`
+  fi
+
+  if [ "$flipSI" == "1" ]; then
+    srowZ[5]=`echo ${srowZ[5]} | awk '{print $1 * -1.0}'`
+  fi
+
+  rowX=`echo "'${srowX[3]} ${srowX[4]} ${srowX[5]} ${srowX[6]}'"`
+  rowY=`echo "'${srowY[3]} ${srowY[4]} ${srowY[5]} ${srowY[6]}'"`
+  rowZ=`echo "'${srowZ[3]} ${srowZ[4]} ${srowZ[5]} ${srowZ[6]}'"`
+  echo $rowX
+  echo $rowY
+  echo $rowZ
+
+  cmd=`echo "nifti_tool -mod_hdr -mod_field srow_x $rowX -mod_field srow_y $rowY -mod_field srow_z $rowZ -prefix $i -infiles $origImage"`
+  eval $cmd
+>>>>>>> parent of 9faf0f6... UPD: Corrected the fixOrientation script and verified it
   
 done
 
 
+<<<<<<< HEAD
 exit
   
+=======
+
+>>>>>>> parent of 9faf0f6... UPD: Corrected the fixOrientation script and verified it
