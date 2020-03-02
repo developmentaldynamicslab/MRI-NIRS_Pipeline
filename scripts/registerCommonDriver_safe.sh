@@ -120,7 +120,7 @@ do
       exit 1
   fi
 
-  warpXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*Warp.nii.gz`
+  warpXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*1Warp.nii.gz`
   if [ "$warpXfrm" == "" ]; then
       echo "ERROR: Failed to find resulting Warp transform from ANTS registration."
       exit 1
