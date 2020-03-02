@@ -1,4 +1,16 @@
-function ImageRecon_NeuroDOT(subjectListFile,newSamplingFreq)
+%oldSamplingFreq = sampling frequency of NIRS data in Hz (included here since not
+%contained in the TechEN header...)
+
+%newSamplingFreq --> specify a new sampling freq (e.g., if you want to
+%downsample). Otherwise, oldSamplingFreq and newSamplingFreq should match.
+%Specify this in Hz.
+
+%padding --> only reconstruct data from first to last stim mark to keep
+%file sizes as small as possible. Padding gives you a bit of extra data
+%before the first stim and after the last stim in case you want a baseline.
+%Specify this in seconds.
+
+function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,padding)
 
 
 fileID = fopen(subjectListFile,'r');
@@ -90,8 +102,7 @@ for n=1:numSubjects
         
         %find first and last event in s matrix -- this defines the window
         %of data we want to reconstruct...minus 20s padding.
-        info.system.framerate=25;
-        padding = 20;
+        info.system.framerate=oldSamplingFreq;
         [i,j]=find(procResult.s == 1);
         startframe = min(i) - (info.system.framerate*padding);
         if (startframe < 1)
