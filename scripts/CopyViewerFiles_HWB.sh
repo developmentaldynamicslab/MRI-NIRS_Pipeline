@@ -36,7 +36,7 @@ do
 #  mkdir /Volumes/PegasusDDLab/HWB_Data/{$i}_MC
 #  cp $subjectDir/viewer/Subject/AdotVol_NeuroDOT2mm.nii /Volumes/PegasusDDLab/HWB_Data/#{$i}_MC/viewer/#Subject/AdotVol_NeuroDOT2mm.nii
 
-  cp $subjectDir/viewer/Subject/headvol.nii /Volumes/Maxtor/Sara_Parents/ImageRecon_Parent/${i}_headvol.nii
+  cp $subjectDir/viewer/Subject/headvol.nii /Volumes/Sara_G-Drive/ImageRecon_Child_Jenga/${i}_headvol.nii
 
   let index+=1
 done
