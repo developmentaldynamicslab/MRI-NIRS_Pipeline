@@ -149,11 +149,6 @@ fi
 
 echo "${dir1}${dir2}${dir3} $subjectT1"
 
-for i in $subjectT1
-do
-	3drefit -orient ${dir1}${dir2}${dir3} $i
-done
-
 
 warpImages=`ls ${subjectDir}/*.nii`
 for i in $warpImages
