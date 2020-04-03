@@ -124,7 +124,7 @@ for n=1:numSubjects
         
     end
     
-    %average beta maps across runs
+    %average beta maps across runs -- could do weighted mean here
     b_HbO = b_HbO ./ runCt;
     b_HbR = b_HbR ./ runCt;
 
