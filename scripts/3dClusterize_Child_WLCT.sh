@@ -14,9 +14,11 @@ effectlist='6Hb 7AgexHb'
 
 mkdir Child_WLCT/0.01
 
+#1 minus index of sub-brick for first effect list below
 let "COUNTER=5"
 echo ${COUNTER}
 
+#1 minus index of sub-brick for first GES effect list below
 let "COUNTER2=21"
 
 for effect in $effectlist
@@ -41,6 +43,8 @@ echo ${COUNTER2}
 
 3dROIstats -mask Child_WLCT/0.01/${effect}/clust_order_${effect}_l1_01.nii HWB_Child_WLCT+orig"[$COUNTER2]" > \
 	Child_WLCT/0.01/${effect}/${effect}_l1_01_ges.1D
+
+whereami -coord_file Child_WLCT/0.01/${effect}/${effect}_l1_01.1D'[13,14,15]' -tab -space MNI > Child_WLCT/0.01/${effect}/${effect}_l1_01_wai.1D
 
 cp T1_RAS.nii Child_WLCT/0.01//${effect}/
 cp 32HWB036_T1_to_Atlas.nii.gz Child_WLCT/0.01/${effect}/
