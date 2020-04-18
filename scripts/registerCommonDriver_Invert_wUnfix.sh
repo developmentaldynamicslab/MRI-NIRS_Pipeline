@@ -90,8 +90,8 @@ do
   m=$clustDir/$i'_headvol2mm.nii'
   resultImageBase=$clustDir/$i
 
-  #cp $clustDir/$i'_headvol2mm.nii' $clustDir/$i'_headvol2mm_unfix.nii'
-  #3drefit -orient LPI $clustDir/$i'_headvol2mm_unfix.nii'
+  cp $clustDir/$i'_headvol2mm.nii' $clustDir/$i'_headvol2mm_unfix.nii'
+  3drefit -orient LPI $clustDir/$i'_headvol2mm_unfix.nii'
 
   warpImages=`ls ${clustDir}/clust_*.nii`
   #warpImages=`ls ${subjectResultDir}/${subjectId}_headvol.nii`
@@ -110,8 +110,8 @@ do
     -t $war
 
     #fix orientation issue
-    #cp ${resultImage} $resultImageBase"_${resultImage2%.nii*}_unfix.nii"
-	#3drefit -orient LPI $resultImageBase"_${resultImage2%.nii*}_unfix.nii"
+    cp ${resultImage} $resultImageBase"_${resultImage2%.nii*}_unfix.nii"
+	3drefit -orient LPI $resultImageBase"_${resultImage2%.nii*}_unfix.nii"
 
 	#example that works...
     #antsApplyTransforms -d 3 \
