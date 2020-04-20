@@ -69,8 +69,18 @@ do
   #   of images and masks
   #subjectT1=`ls $subjectResultDir/*headvol.nii`
   #subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
+
+  #for Template INDIA
+#  subjectT1=$subjectDir/T1_RAS_ACPC.nii
+#  subjectBrainMask=$subjectDir/hseg.nii
+
+  #for Y1 INDIA
+#subjectT1=$subjectDir/T1_RAS.nii
+#subjectBrainMask=$subjectDir/T1_Mask.nii
+
+  #for Y2 INDIA
   subjectT1=$subjectDir/T1_RAS_ACPC.nii
-  subjectBrainMask=$subjectDir/hseg.nii
+  subjectBrainMask=$subjectDir/Brain_Mask_ACPC.nii
 
   echo "Subject T1: $subjectT1"
   echo "Subject Mask: $subjectBrainMask"
@@ -128,6 +138,7 @@ do
 
   warpImages=`ls ${subjectResultDir}/${subjectId}*oxy*.nii`
   #warpImages=`ls ${subjectResultDir}/${subjectId}_headvol.nii`
+
   for i in $warpImages
   do
     resultImage=`basename $i`
