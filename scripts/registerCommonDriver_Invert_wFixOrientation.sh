@@ -81,13 +81,13 @@ do
   #echo "Subject T1: $subjectT1"
   #echo "Subject Mask: $subjectBrainMask"
   #################################################################
-  
-  #first we need to resample the headvol.nii file
-  3dresample -dxyz 2 2 2 -prefix $clustDir/$i'_headvol2mm_prefix.nii' -input $subjectResultDir/$i'_headvol.nii'
 
-  aff=$commonResultDir/$i'_T1_to_Atlas_0GenericAffine.mat'
-  war=$commonResultDir/$i'_T1_to_Atlas_1InverseWarp.nii.gz'
-  m=$clustDir/$i'_headvol2mm.nii'
+  #first we need to resample the headvol.nii file
+  3dresample -dxyz 2 2 2 -prefix $clustDir/$i'_headvol2mm_prefix.nii' -input $subjectDir'/viewer/Subject/headvol.nii'
+
+  aff=$commonResultDir/$fNIRSAtlasLabel'_T1_to_Atlas_0GenericAffine.mat'
+  war=$commonResultDir/$fNIRSAtlasLabel'_T1_to_Atlas_1InverseWarp.nii.gz'
+  m=$clustDir/$i'_headvol2mm_prefix.nii'
   resultImageBase=$clustDir/$i
 
   cp $clustDir/$i'_headvol2mm_prefix.nii' $clustDir/$i'_headvol2mm.nii'
@@ -96,11 +96,11 @@ do
   warpImages=`ls ${clustDir}/clust_*.nii`
   #warpImages=`ls ${subjectResultDir}/${subjectId}_headvol.nii`
   for i in $warpImages
-  do    
-    
+  do
+
     resultImage2=`basename $i`
     resultImage=$resultImageBase"_${resultImage2%.nii*}_prefix.nii"
-    echo "Result Image: $resultImage"    
+    echo "Result Image: $resultImage"
     antsApplyTransforms -d 3 \
     -i $i \
     -r $m \
