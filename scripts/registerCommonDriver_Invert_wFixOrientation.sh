@@ -83,15 +83,15 @@ do
   #################################################################
   
   #first we need to resample the headvol.nii file
-  3dresample -dxyz 2 2 2 -prefix $clustDir/$i'_headvol2mm.nii' -input $subjectResultDir/$i'_headvol.nii'
+  3dresample -dxyz 2 2 2 -prefix $clustDir/$i'_headvol2mm_prefix.nii' -input $subjectResultDir/$i'_headvol.nii'
 
   aff=$commonResultDir/$i'_T1_to_Atlas_0GenericAffine.mat'
   war=$commonResultDir/$i'_T1_to_Atlas_1InverseWarp.nii.gz'
   m=$clustDir/$i'_headvol2mm.nii'
   resultImageBase=$clustDir/$i
 
-  cp $clustDir/$i'_headvol2mm.nii' $clustDir/$i'_headvol2mm_unfix.nii'
-  3drefit -orient LPI $clustDir/$i'_headvol2mm_unfix.nii'
+  cp $clustDir/$i'_headvol2mm_prefix.nii' $clustDir/$i'_headvol2mm.nii'
+  3drefit -orient LPI $clustDir/$i'_headvol2mm.nii'
 
   warpImages=`ls ${clustDir}/clust_*.nii`
   #warpImages=`ls ${subjectResultDir}/${subjectId}_headvol.nii`
@@ -99,7 +99,7 @@ do
   do    
     
     resultImage2=`basename $i`
-    resultImage=$resultImageBase"_${resultImage2%.nii*}.nii"
+    resultImage=$resultImageBase"_${resultImage2%.nii*}_prefix.nii"
     echo "Result Image: $resultImage"    
     antsApplyTransforms -d 3 \
     -i $i \
@@ -110,8 +110,8 @@ do
     -t $war
 
     #fix orientation issue
-    cp ${resultImage} $resultImageBase"_${resultImage2%.nii*}_unfix.nii"
-	3drefit -orient LPI $resultImageBase"_${resultImage2%.nii*}_unfix.nii"
+    cp ${resultImage} $resultImageBase"_${resultImage2%.nii*}.nii"
+	3drefit -orient LPI $resultImageBase"_${resultImage2%.nii*}.nii"
 
 	#example that works...
     #antsApplyTransforms -d 3 \

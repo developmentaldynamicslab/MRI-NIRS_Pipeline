@@ -91,9 +91,7 @@ for n=1:numSubjects
         %iterate through the mask until no new entries
         i=1;
         while 
-            
         for i = 1:MaxMaskValue
-            
             keepVox = find(MaskData(:) == i);
 % %             keepVox = find(Mask1D(:) == i);
             [~,keepGood]=ismember(keepVox,info.tissue.dim.Good_Vox);
