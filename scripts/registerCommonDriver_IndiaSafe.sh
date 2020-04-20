@@ -48,6 +48,8 @@ do
   fNIRSAtlasLabel=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $11}'`
   subjectHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $12}'`
   atlasHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $13}'`
+  subjectT1=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $14}'`
+  subjectBrainMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $15}'`
 
   echo "Subject Id: $subjectId"
   echo "NIRS File: $NIRSfile"
@@ -62,13 +64,17 @@ do
   echo "Atlas Label: $fNIRSAtlasLabel"
   echo "Subject Hseg: $subjectHsegMask"
   echo "Atlas Hseg: $atlasHsegMask"
+  echo "Subject Image: $subjectT1"
+  echo "Subject Mask: $subjectBrainMask"
 
-
+  #################################################################
+  # NOTE: Files Needed for the subject have been added to the driver file
   # Get the T1 image for registration and Brain Mask
   #   This matching could be modified to support additional types
   #   of images and masks
   #subjectT1=`ls $subjectResultDir/*headvol.nii`
   #subjectBrainMask=`ls $subjectResultDir/*headvol.nii`
+<<<<<<< HEAD
 
   #for Template INDIA
 #  subjectT1=$subjectDir/T1_RAS_ACPC.nii
@@ -85,6 +91,14 @@ do
   echo "Subject T1: $subjectT1"
   echo "Subject Mask: $subjectBrainMask"
 
+=======
+  #subjectT1=$subjectDir/T1_RAS_ACPC.nii
+  #subjectBrainMask=$subjectDir/hseg.nii
+  #echo "Subject T1: $subjectT1"
+  #echo "Subject Mask: $subjectBrainMask"
+  #################################################################
+
+>>>>>>> 69eee7be85faeef4dafa60afe068d55bc50f475a
   if [ $atlasType != "AtlasW" ]; then
 
     subjectMovingImage=${commonResultDir}/${fNIRSAtlasLabel}_T1_ACPC_Brain.nii
@@ -130,7 +144,7 @@ do
       exit 1
   fi
 
-  warpXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*Warp.nii.gz`
+  warpXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*1Warp.nii.gz`
   if [ "$warpXfrm" == "" ]; then
       echo "ERROR: Failed to find resulting Warp transform from ANTS registration."
       exit 1
