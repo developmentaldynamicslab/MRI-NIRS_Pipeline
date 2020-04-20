@@ -70,7 +70,6 @@ rlOrder=`3dinfo $subjectT1 | grep Right | awk '{print $4}'`
 siDir=`3dinfo $subjectT1 | grep Inferior | awk '{print $1}'`
 siOrder=`3dinfo $subjectT1 | grep Inferior | awk '{print $4}'`
 
-
 if [ "$apOrder" == "Posterior-to-Anterior" ]; then
   if [ "$flipAP" == "1" ]; then
     newAPorder="A"
@@ -85,11 +84,6 @@ else
   fi
 fi
 
-echo $apOrder
-echo $flipAP
-echo $newAPorder
-
-
 if [ "$rlOrder" == "Left-to-Right" ]; then
   if [ "$flipRL" == "1" ]; then
     newRLorder="R"
@@ -103,11 +97,6 @@ else
     newRLorder="R"
   fi
 fi
-
-echo $rlOrder
-echo $flipRL
-echo $newRLorder
-
 
 if [ "$siOrder" == "Inferior-to-Superior" ]; then
   if [ "$flipSI" == "1" ]; then
@@ -148,11 +137,7 @@ else
 fi
 
 echo "${dir1}${dir2}${dir3} $subjectT1"
-
-for i in $subjectT1
-do
-	3drefit -orient ${dir1}${dir2}${dir3} $i
-done
+3drefit -orient ${dir1}${dir2}${dir3} $subjectT1
 
 
 warpImages=`ls ${subjectDir}/*.nii`
@@ -236,12 +221,10 @@ do
     dir3=$newSIorder
   fi
 
-  echo $dir1
-  echo $dir2
-  echo $dir3
   3drefit -orient ${dir1}${dir2}${dir3} $i
   
 done
 
 
 exit
+  
