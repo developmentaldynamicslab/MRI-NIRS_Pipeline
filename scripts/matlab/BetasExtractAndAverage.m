@@ -35,9 +35,10 @@ else
         break
       end
       if (firstLine == 1)
-        subjectList=tmp;
-        firstLine=0;
         numItems=size(tmp);
+        for i=1:numItems(2)
+          subjectList{i}=[{tmp{i}}];
+        end
       else
         for i=1:numItems(2)
           subjectList{i}=[subjectList{i};{tmp{i}}];
