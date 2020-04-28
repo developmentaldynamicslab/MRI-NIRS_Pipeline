@@ -90,10 +90,12 @@ for n=1:numSubjects
         
         %check if events in regressors specified by user
         doGLM = 0;
+        foundValidRegressor=0;
         for j=1:numRegressors
-            if ~isempty(info.paradigm.(['Pulse_',num2str(regressorListND(j))]))
+            if ~isempty(info.paradigm.(['Pulse_',num2str(regressorListND(j))])) & (foundValidRegressor == 0)
                 doGLM = 1;
                 runCt = runCt+1;
+                foundValidRegressor = 1;
             end
         end
         
