@@ -85,7 +85,7 @@ for n=1:numSubjects
     
     % %%%%% Set Parameters for Processing
     params.lambda_1=0.1; %range between 0.2-0.01--smoothness vs variance
-    params.lambda_2=0.1; %range between 0.2-0.01--what is this??
+    params.lambda_2=0.1; %range between 0.2-0.01--pushing reconstruction into the volume
     params.gsigma=3; % standard deviation of Gaussian smoothing kernel in mm
     
     inputFileStr=strcat(subjectList{4}{n}, '/', subjects{n}, '*.nirs');
@@ -132,8 +132,8 @@ for n=1:numSubjects
         info.pairs.lambda=cat(1,ones(ch,1).*procInput.SD.Lambda(1), ones(ch,1).*procInput.SD.Lambda(2));
         info.pairs.NN=ones(meas,1); 
         info.pairs.Mod=repmat({'CW'},[meas,1]);  
-        info.pairs.r2d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
-        info.pairs.r3d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
+        info.pairs.r2d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS; ARE THESE IN .NIRS FILE?
+        info.pairs.r3d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS 
         
         %%%%%%%%%%%%%%%%% UPDATE METADATA?
         
@@ -188,7 +188,7 @@ for n=1:numSubjects
         
         %%step through wavelengths...
         for j = 1:size(procInput.SD.Lambda,2)
-            keep = (info.pairs.WL == j) & info.MEAS.GI;
+            keep = (info.pairs.WL == j) & info.MEAS.GI; %COULD ADD CUTOFF HERE BASED ON DISTANCE
             disp('> Inverting A')
             iA = Tikhonov_invert_Amat(A(keep, :), params.lambda_1, params.lambda_2); % Invert A-Matrix
             disp('> Smoothing iA')

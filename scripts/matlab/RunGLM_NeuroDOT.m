@@ -61,7 +61,7 @@ numSubjects=size(subjects,1);
 load('hrf_DOT3.mat'); % HbO hrf
 infoHRF.system.framerate=1;
 hrf=resample_tts(hrf,infoHRF,newSamplingFreq,1e-3,1);
-hrfR = hrf*-1;
+hrfR = hrf;
 
 numRegressors = size(regressorList,2);
 regressorListND = regressorList+1;
@@ -108,7 +108,7 @@ for n=1:numSubjects
         if doGLM
             
             %fix scale on image recon data; see Adam email 10/12/19
-            cortex_HbO = cortex_HbO.*1000;
+            cortex_HbO = cortex_HbO.*1000; %MILLIMOLAR
             cortex_HbR = cortex_HbR.*1000;
             
             params.DoFilter=0;
