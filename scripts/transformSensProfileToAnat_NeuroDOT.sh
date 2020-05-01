@@ -61,7 +61,7 @@ do
   echo "'$outputDir/headvol.nii');" >> $outputDir/mapToAnat.m
   echo "quit;" >> $outputDir/mapToAnat.m
 
-  matlab -r "run('$outputDir/mapToAnat.m');"
+  matlab -nodisplay -r "run('$outputDir/mapToAnat.m');"
 
   # Now threshold the images
   index2=1
