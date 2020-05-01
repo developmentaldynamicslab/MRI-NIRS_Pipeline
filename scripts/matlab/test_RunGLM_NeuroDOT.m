@@ -12,7 +12,7 @@ end
 %   set useLegacyCode=1 to revert back to old behavior
 useLegacyCode = 1;
 if ( useLegacyCode )
-  subjectList = textscan(fileID,'%s %s %s %s %s %s %s %s %s %s %s %s %s');
+  subjectList = textscan(fileID,'%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s');
 else
   tline = fgetl(fileID);
   firstLine=1;
@@ -61,7 +61,7 @@ numSubjects=size(subjects,1);
 load('hrf_DOT3.mat'); % HbO hrf
 infoHRF.system.framerate=1;
 hrf=resample_tts(hrf,infoHRF,newSamplingFreq,1e-3,1);
-hrfR = hrf;
+hrfR = hrf*-1;
 
 numRegressors = size(regressorList,2);
 regressorListND = regressorList+1;
@@ -90,12 +90,10 @@ for n=1:numSubjects
         
         %check if events in regressors specified by user
         doGLM = 0;
-        foundValidRegressor=0;
         for j=1:numRegressors
-            if ~isempty(info.paradigm.(['Pulse_',num2str(regressorListND(j))])) & (foundValidRegressor == 0)
+            if ~isempty(info.paradigm.(['Pulse_',num2str(regressorListND(j))]))
                 doGLM = 1;
                 runCt = runCt+1;
-                foundValidRegressor = 1;
             end
         end
         
@@ -108,7 +106,7 @@ for n=1:numSubjects
         if doGLM
             
             %fix scale on image recon data; see Adam email 10/12/19
-            cortex_HbO = cortex_HbO.*1000; %MILLIMOLAR
+            cortex_HbO = cortex_HbO.*1000;
             cortex_HbR = cortex_HbR.*1000;
             
             params.DoFilter=0;
