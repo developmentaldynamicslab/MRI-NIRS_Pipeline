@@ -74,14 +74,6 @@ regressorListND = regressorList+1;
 for n=1:numSubjects
     
     sID=subjects{n}
-
-    OutFileN=strcat(subjectList{16}{n},'/ExtractHb_',rName,'.csv');
-    if (exist(OutFileN,'file') == 0)
-        outfile = fopen(OutFileN,'w');
-        fprintf(outfile,'AnalysisLabel,Subject,Effect,Cluster,Cond,Chromophore,N,Time,Mean,SE\n');
-    else
-        outfile = fopen(OutFileN,'a');
-    end
     
     %process data for each run per subject -- do this as outer loop since
     %it takes forever to load the ND files...
@@ -203,6 +195,14 @@ for n=1:numSubjects
     for ef=1:numEff
         
         effName = char(filesEff(ef));
+        effectN = effName(13:size(effName,2)-4);
+        OutFileN=strcat(subjectList{16}{n},'/TsHb_',rName,'_',effectN,'.csv');
+        if (exist(OutFileN,'file') == 0)
+            outfile = fopen(OutFileN,'w');
+            fprintf(outfile,'AnalysisLabel,Subject,Effect,Cluster,Cond,Chromophore,N,Time,Mean,SE\n');
+        else
+            outfile = fopen(OutFileN,'a');
+        end
         
         for cl=1:NClust(1,ef)
             newfig=1;
@@ -259,9 +259,10 @@ for n=1:numSubjects
                 hold off;
             end
         end
+        fclose(outfile);
+
     end
     
-    fclose(outfile);
   
 end %subjects
             
