@@ -44,7 +44,6 @@ do
   NIRSfile=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $2}'`
   subjectDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $3}'`
   anatHeadVol=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $6}'`
-
   outputDir=$subjectDir/viewer/Subject
 
   if [ ! -e $outputDir ]; then
