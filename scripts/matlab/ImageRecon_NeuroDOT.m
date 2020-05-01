@@ -10,7 +10,15 @@
 %before the first stim and after the last stim in case you want a baseline.
 %Specify this in seconds.
 
-function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,padding)
+function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,padding,baseSDmm)
+
+%run interactively
+if 0
+    subjectListFile = 'Y1_finalComboSubjListGroup.prn';
+    oldSamplingFreq = 25;
+    newSamplingFreq = 10;
+    padding = 20;
+end
 
 logFilename = ['ImageRecon_NeuroDOT_', datestr(now, 'yyyy-mm-dd-THHMMSS') '.log'];
 fileIDlog = fopen(logFilename,'a');
@@ -52,16 +60,18 @@ else
     %JPS added to pull out unique subjects
     %needed in cases where input file has multiple rows with
     %data from multiple sessions per subject
-    subjectListTemp = subjectList;
-    [subjects2,uindex]=unique(subjectListTemp{1,1});
-    for x=1:size(subjectListTemp,2)
-        for y=1:size(uindex,1)
-            subjectList2{x}{y,1} = subjectListTemp{x}{uindex(y)};
+    if 0
+        subjectListTemp = subjectList;
+        [subjects2,uindex]=unique(subjectListTemp{1,1});
+        for x=1:size(subjectListTemp,2)
+            for y=1:size(uindex,1)
+                subjectList2{x}{y,1} = subjectListTemp{x}{uindex(y)};
+            end
         end
+        
+        clear subjectList;
+        subjectList = subjectList2;
     end
-    
-    clear subjectList;
-    subjectList = subjectList2;
     
     subjects=subjectList{1,1};
     
@@ -75,9 +85,8 @@ else
         %% Loading data and setting up info structure for NeuroDOT
         imageFile=strcat(subjectList{3}{n},'/viewer/Subject/AdotVol_NeuroDOT2mm');
         
-        fileIDi = fopen(imageFile,'r');
-        if fileIDi < 0
-            fprintf(fileIDlog,'Failed to open file for reading: %s\n',imageFile);
+        if ~exist(strcat(imageFile,'.nii'))
+            fprintf(fileIDlog,'Failed to open light model: %s\n',strcat(imageFile,'.nii'));
         else
             
             [Anii,infoAnii] = LoadVolumetricData(imageFile, [],'nii');
@@ -148,8 +157,8 @@ else
                 info.pairs.lambda=cat(1,ones(ch,1).*procInput.SD.Lambda(1), ones(ch,1).*procInput.SD.Lambda(2));
                 info.pairs.NN=ones(meas,1);
                 info.pairs.Mod=repmat({'CW'},[meas,1]);
-                info.pairs.r2d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS; ARE THESE IN .NIRS FILE?
-                info.pairs.r3d=ones(meas,1).*30; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
+                info.pairs.r2d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS; ARE THESE IN .NIRS FILE?
+                info.pairs.r3d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
                 
                 %%%%%%%%%%%%%%%%% UPDATE METADATA?
                 
