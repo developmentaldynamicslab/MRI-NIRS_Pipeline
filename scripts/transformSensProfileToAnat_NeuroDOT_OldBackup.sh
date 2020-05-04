@@ -44,7 +44,6 @@ do
   NIRSfile=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $2}'`
   subjectDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $3}'`
   anatHeadVol=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $6}'`
-
   outputDir=$subjectDir/viewer/Subject
 
   if [ ! -e $outputDir ]; then
@@ -61,7 +60,7 @@ do
   echo "'$outputDir/headvol.nii');" >> $outputDir/mapToAnat.m
   echo "quit;" >> $outputDir/mapToAnat.m
 
-  matlab -nodisplay -r "run('$outputDir/mapToAnat.m');"
+  matlab -r "run('$outputDir/mapToAnat.m');"
 
   # Now threshold the images
   index2=1
@@ -73,7 +72,7 @@ do
     3dcalc -a $j -expr 'a*astep(a,0.000001)' -prefix $outputDir/${channel}_ND.nii
   	3dresample -dxyz 2 2 2 -prefix $outputDir/${channel}_ND2mm.nii -input $outputDir/${channel}_ND.nii
     #cp $j $outputDir/${channel}_ND.nii
-
+    
     if [ $index2 == 1 ]; then
     	index2=2
     	3dTcat $outputDir/${channel}_ND2mm.nii -prefix $outputDir/AdotVol_NeuroDOT2mm.nii
@@ -83,13 +82,11 @@ do
     	mv $outputDir/AdotVol_NeuroDOT_temp.nii $outputDir/AdotVol_NeuroDOT2mm.nii
     fi
   done
-
+  
 
   rm -f $outputDir/AdotVol_C*_S*_D*_temp.nii
   rm -f $outputDir/*_ND.nii
   rm -f $outputDir/*_ND2mm.nii
-
-  3dresample -dxyz 2 2 2 -prefix $outputDir/headvol_2mm.nii -input $outputDir/headvol.nii
 
   let index+=1
 done
