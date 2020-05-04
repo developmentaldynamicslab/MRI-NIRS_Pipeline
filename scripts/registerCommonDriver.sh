@@ -48,6 +48,8 @@ do
   fNIRSAtlasLabel=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $11}'`
   subjectHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $12}'`
   atlasHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $13}'`
+  subjectT1=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $14}'`
+  subjectBrainMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $15}'`
 
   echo "Subject Id: $subjectId"
   echo "NIRS File: $NIRSfile"
@@ -62,7 +64,8 @@ do
   echo "Atlas Label: $fNIRSAtlasLabel"
   echo "Subject Hseg: $subjectHsegMask"
   echo "Atlas Hseg: $atlasHsegMask"
-
+  echo "Subject Image: $subjectT1"
+  echo "Subject Mask: $subjectBrainMask"
 
   # Get the T1 image for registration and Brain Mask
   #   This matching could be modified to support additional types
@@ -79,11 +82,11 @@ do
 #subjectBrainMask=$subjectDir/T1_Mask.nii
 
   #for Y2 INDIA
-  subjectT1=$subjectDir/T1_RAS_ACPC.nii
-  subjectBrainMask=$subjectDir/Brain_Mask_ACPC.nii
+#  subjectT1=$subjectDir/T1_RAS_ACPC.nii
+#  subjectBrainMask=$subjectDir/Brain_Mask_ACPC.nii
 
-  echo "Subject T1: $subjectT1"
-  echo "Subject Mask: $subjectBrainMask"
+#  echo "Subject T1: $subjectT1"
+#  echo "Subject Mask: $subjectBrainMask"
 
   if [ $atlasType != "AtlasW" ]; then
 
@@ -130,7 +133,7 @@ do
       exit 1
   fi
 
-  warpXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*Warp.nii.gz`
+  warpXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*1Warp.nii.gz`
   if [ "$warpXfrm" == "" ]; then
       echo "ERROR: Failed to find resulting Warp transform from ANTS registration."
       exit 1
