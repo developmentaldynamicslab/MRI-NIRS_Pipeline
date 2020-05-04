@@ -224,8 +224,8 @@ else
                 %% Spectroscopy
                 E=SD.extCoef;
                 cortex_Hb = spectroscopy_img(cortex_mu_a, E);
-                cortex_HbO = cortex_Hb(:, :, 1);
-                cortex_HbR = cortex_Hb(:, :, 2);
+                cortex_HbO = cortex_Hb(:, :, 1).*1000; %convert to micromolar; see 10/12/19 email
+                cortex_HbR = cortex_Hb(:, :, 2).*1000; %convert to micromolar; see 10/12/19 email
                 cortex_HbT = cortex_HbO + cortex_HbR;
                 
                 %% Save your data--output in ND format to save space.
