@@ -83,7 +83,8 @@ do
   #################################################################
 
   #first we need to resample the headvol.nii file
-  3dresample -dxyz 2 2 2 -prefix $clustDir/$i'_headvol2mm.nii' -input $subjectDir'/viewer/Subject/headvol.nii'
+#  3dresample -dxyz 2 2 2 -prefix $clustDir/$i'_headvol2mm.nii' -input $subjectDir'/viewer/Subject/headvol.nii'
+  cp $subjectDir'/viewer/Subject/headvol_2mm.nii' $clustDir/$i'_headvol2mm.nii'
 
   aff=$commonResultDir/$fNIRSAtlasLabel'_T1_to_Atlas_0GenericAffine.mat'
   war=$commonResultDir/$fNIRSAtlasLabel'_T1_to_Atlas_1InverseWarp.nii.gz'
