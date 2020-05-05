@@ -10,6 +10,10 @@
 %before the first stim and after the last stim in case you want a baseline.
 %Specify this in seconds.
 
+%baseSDmm --> the 'base' separation between sources and detectors in mm.
+%Not currently used in this code, but a parameter one can use in NeuroDOT
+%so setting it explicitly here.
+
 function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,padding,baseSDmm)
 
 %run interactively
@@ -32,7 +36,7 @@ else
     %   set useLegacyCode=1 to revert back to old behavior
     useLegacyCode = 0;
     if ( useLegacyCode )
-        subjectList = textscan(fileID,'%s %s %s %s %s %s');
+        subjectList = textscan(fileID,'%s %s %s %s %s %s %s %s %s %s %s %s %s');
     else
         tline = fgetl(fileID);
         firstLine=1;

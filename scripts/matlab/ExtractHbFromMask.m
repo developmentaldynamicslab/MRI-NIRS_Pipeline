@@ -123,11 +123,11 @@ for n=1:numSubjects
                 checkName3=strcat(sID,'_headvol2mm');
                 [checkData3,header3] = LoadVolumetricData(checkName3,MaskPath,'nii');
                 
-                %         %code to view data to ensure everything lines up
+                %code to view data to ensure everything lines up
                 GVmask=Good_Vox2vol(ones(length(info.tissue.dim.Good_Vox),1),info.tissue.dim);
                 PlotSlices(checkData3,header3,[],GVmask); %q to exit viewer
                 PlotSlices(checkData3,header3,[],MaskData);
-                %                     PlotSlices(MaskData,header,[],GVmask);
+                %PlotSlices(MaskData,header,[],GVmask);
             end
             
             
@@ -144,10 +144,6 @@ for n=1:numSubjects
 %                 HbR_TimeTrace=mean(HbR_cluster_only,1);
                 
                 %compute either weighted mean over runs (based on stims per run)
-                %or concatenate data and do one call to block average. Here, need
-                %to update stim timings to point toward concat data, and also
-                %update number of synchpts accordingly...
-                
                 for reg=1:numRegressors
                     
                     stims = find(info.paradigm.synchtype == regressorListND(reg));
@@ -158,24 +154,24 @@ for n=1:numSubjects
                         %extract block average time series for HbO...
                         [BA_out,BSTD_out,BT_out,blocks] = BlockAverage(HbO_cluster_only, info.paradigm.synchpts(stims), dt);
                         
-                        MData(ef,cl,reg,1,r,:) = mean(BA_out)*1000; % your mean vector in micromolar;
-                        SEData(ef,cl,reg,1,r,:) = (mean(BSTD_out)*1000)/sqrt(size(stims,1)); %SE
+                        MData(ef,cl,reg,1,r,:) = mean(BA_out); % your mean vector in micromolar;
+                        SEData(ef,cl,reg,1,r,:) = (mean(BSTD_out))/sqrt(size(stims,1)); %SE
 
 %                         figure;
 %                         x = 1:dt;
-%                         y = mean(BA_out)*1000;
-%                         sdtime = mean(BSTD_out)*1000/sqrt(size(stims,1));
+%                         y = mean(BA_out);
+%                         sdtime = mean(BSTD_out)/sqrt(size(stims,1));
 %                         mseb(x, y, sdtime, [], 1);
                         
                         %extract block average time series for HbR...
                         [BA_out,BSTD_out,BT_out,blocks] = BlockAverage(HbR_cluster_only, info.paradigm.synchpts(stims), dt);
-                        MData(ef,cl,reg,2,r,:) = mean(BA_out)*1000; % your mean vector in micromolar;
-                        SEData(ef,cl,reg,2,r,:) = (mean(BSTD_out)*1000)/sqrt(size(stims,1)); %SE
+                        MData(ef,cl,reg,2,r,:) = mean(BA_out); % your mean vector in micromolar;
+                        SEData(ef,cl,reg,2,r,:) = (mean(BSTD_out))/sqrt(size(stims,1)); %SE
  
 %                         figure;
 %                         x = 1:dt;
-%                         y = mean(BA_out)*1000;
-%                         sdtime = mean(BSTD_out)*1000/sqrt(size(stims,1));
+%                         y = mean(BA_out);
+%                         sdtime = mean(BSTD_out)/sqrt(size(stims,1));
 %                         mseb(x, y, sdtime, [], 1);
                        
                     end
@@ -215,7 +211,6 @@ for n=1:numSubjects
                     AS=zeros(numRuns,dt);
                     
                     %compute weighting over number of stims per run
-                    %WM = mean(W.'*A,2)
                     for r=1:numRuns
                         W(r,1) = squeeze(NData(ef,cl,reg,r));
                         AM(r,:) = squeeze(MData(ef,cl,reg,Hb,r,:));
