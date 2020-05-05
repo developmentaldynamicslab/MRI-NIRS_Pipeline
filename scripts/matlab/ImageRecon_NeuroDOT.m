@@ -85,6 +85,7 @@ else
     for n=1:numSubjects
         
         sID=subjects{n}
+        fprintf(fileIDlog,'Processing Subject %s\n',sID);
         
         %% Loading data and setting up info structure for NeuroDOT
         imageFile=strcat(subjectList{3}{n},'/viewer/Subject/AdotVol_NeuroDOT2mm');

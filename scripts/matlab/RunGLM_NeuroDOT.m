@@ -11,7 +11,7 @@ function RunGLM_NeuroDOT(subjectListFile,regressorList,rDuration,rName,newSampli
 
 %run interactively
 if 0
-    subjectListFile = 'Y1_finalComboSubjListGroup.prn';
+    subjectListFile = 'Y1_finalComboSubjListGroup_1Subj.prn';
     regressorList = [1, 2, 3];
     rDuration = 10;
     rName = 'GatesTest';
@@ -89,6 +89,7 @@ else
     for n=1:numSubjects
         
         sID=subjects{n}
+        fprintf(fileIDlog,'Processing Subject %s\n',sID);
         
         inputFileStr=strcat(subjectList{5}{n}, '/',sID,'*_ND.mat');
         files=dir(inputFileStr);
@@ -133,6 +134,9 @@ else
                 
                 %% glm your data
                 if doGLM
+                    %inserted to test Gates data
+                    %cortex_HbO = cortex_HbO.*1000; %MILLIMOLAR
+                    %cortex_HbR = cortex_HbR.*1000;
                     
                     params.DoFilter=0;
                     params.events=regressorListND;
@@ -144,12 +148,13 @@ else
                     
                     %HbR
                     params.DoFilter=0; %CHECK WITH ADAM
+                    %%% WHAT WILL GLM RETURN IF 0 STIMS FOR A REGRESSOR?
                     [bR,eR,DMR,EDMR]=GLM_181206(cortex_HbR,hrfR,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
                     
                     %Compute weighted sum for weighted mean
                     for bct=2:numRegressors+1
-                        b_HbO=b_HbO(:,bct)+(bO(:,bct)*NData(bct-1,r));
-                        b_HbR=b_HbR(:,bct)+(bR(:,bct)*NData(bct-1,r));
+                        b_HbO(:,bct)=b_HbO(:,bct)+(bO(:,bct).*NData(bct-1,r));
+                        b_HbR(:,bct)=b_HbR(:,bct)+(bR(:,bct).*NData(bct-1,r));
                     end
                 else
                     fprintf(fileIDlog,'No regressor events for Run %d for Subject %s\n',r,sID);
@@ -168,7 +173,7 @@ else
                 end
                 
                 BetaFile=strcat(subjectList{5}{n},'/',sID,'_Betas_',rName,'.mat');
-                save(BetaFile,'b_HbO','b_HbR','runCt');
+                save(BetaFile,'b_HbO','b_HbR','NData');
                 
                 dim2 = info.tissue.dim; %set time points to 1 for beta map
                 dim2.nVt = 1;
