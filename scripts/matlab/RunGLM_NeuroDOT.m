@@ -142,12 +142,12 @@ else
                     params.events=regressorListND;
                     params.event_length=rDuration;
                     params.zscore=0; %don't zscore the design matrix
-                    
+                    params.DoFilter=0;
+                   
                     %HbO
                     [bO,eO,DMO,EDMO]=GLM_181206(cortex_HbO,hrf,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
                     
                     %HbR
-                    params.DoFilter=0; %CHECK WITH ADAM
                     %%% WHAT WILL GLM RETURN IF 0 STIMS FOR A REGRESSOR?
                     [bR,eR,DMR,EDMR]=GLM_181206(cortex_HbR,hrfR,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
                     
@@ -165,8 +165,6 @@ else
             if didGLM
                 
                 %weighted means across runs -- divide by total stims
-                %NEED TO DO ANYTHING WITH INTERCEPT? NO SINCE NOT OUTPUT
-                %BELOW...YES?
                 for bct=2:numRegressors+1
                     b_HbO(:,bct) = b_HbO(:,bct) ./ sum(NData(bct-1,:));
                     b_HbR(:,bct) = b_HbR(:,bct) ./ sum(NData(bct-1,:));

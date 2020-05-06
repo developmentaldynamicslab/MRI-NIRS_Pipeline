@@ -14,14 +14,15 @@
 %Not currently used in this code, but a parameter one can use in NeuroDOT
 %so setting it explicitly here.
 
-function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,padding,baseSDmm)
+function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm)
 
 %run interactively
 if 0
-    subjectListFile = 'Y1_finalComboSubjListGroup.prn';
+    subjectListFile = 'Y1_finalComboSubjListGroup_1Subj.prn';
     oldSamplingFreq = 25;
     newSamplingFreq = 10;
-    padding = 20;
+    paddingStart = 20;
+    paddingEnd = 20;
 end
 
 logFilename = ['ImageRecon_NeuroDOT_', datestr(now, 'yyyy-mm-dd-THHMMSS') '.log'];
@@ -128,14 +129,14 @@ else
                 load(filenames{r}, '-mat');
                 
                 %find first and last event in s matrix -- this defines the window
-                %of data we want to reconstruct...minus 20s padding.
+                %of data we want to reconstruct...minus Xs padding.
                 info.system.framerate=oldSamplingFreq;
                 [i,j]=find(procResult.s == 1);
-                startframe = min(i) - (info.system.framerate*padding);
+                startframe = min(i) - (info.system.framerate*paddingStart);
                 if (startframe < 1)
                     startframe = 1;
                 end
-                endframe = max(i) + (info.system.framerate*padding);
+                endframe = max(i) + (info.system.framerate*paddingEnd);
                 if (endframe > size(procResult.s,1))
                     endframe = size(procResult.s,1);
                 end
@@ -144,12 +145,7 @@ else
                 for a=1:size(i,1)
                     new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
                 end
-                
-                %CHECK--SOBANA REPORTS MISSING STIMS
-                %UPDATE SO CREATES LOG FILE AND KEEPS RUNNING
-                %SORT SHORT-SOURCE DETECTOR ISSUE -- UNCLEAR: ADAM SAYS KEEP THESE
-                %BUT NEED TO DO ANYTHING SPECIAL THERE?
-                
+                                
                 %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
                 data=procResult.dod(startframe:endframe,:)';
                 meas=size(SD.MeasList,1);
@@ -226,9 +222,23 @@ else
                     cortex_mu_a(:, :, j) = reconstruct_img(lmdata(keep, :), iA);% Reconstruct Image Volume
                 end
                 
+                % FFR
+                ffr=makeFlatFieldRecon(A(keep, :),iA); % make ?flat field? use for masking data
+                ffrNorm=ffr./max(ffr);
+                maskffr=+(ffrNorm>0.05); %threshold at 1%    
+                
+                %Code to view the flat field reconstruction
+                %[Anii2,infoAnii2]=LoadVolumetricData('headvol_2mm',[],'nii');
+                %ffrnormb=Good_Vox2vol(ffrNorm,info.tissue.dim);
+                %ffrnormc=Good_Vox2vol(maskffr,info.tissue.dim);
+                %PlotSlices(Anii2,info.tissue.dim,[],ffrnormc)
+                
                 %% Spectroscopy
                 E=SD.extCoef;
                 cortex_Hb = spectroscopy_img(cortex_mu_a, E);
+                
+                cortex_Hb = bsxfun(@times, cortex_Hb, maskffr);
+                
                 cortex_HbO = cortex_Hb(:, :, 1).*1000; %convert to micromolar; see 10/12/19 email
                 cortex_HbR = cortex_Hb(:, :, 2).*1000; %convert to micromolar; see 10/12/19 email
                 cortex_HbT = cortex_HbO + cortex_HbR;
