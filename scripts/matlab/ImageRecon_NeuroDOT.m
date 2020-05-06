@@ -14,7 +14,7 @@
 %Not currently used in this code, but a parameter one can use in NeuroDOT
 %so setting it explicitly here.
 
-function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm)
+function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion)
 
 %run interactively
 if 0
@@ -225,7 +225,7 @@ else
                 % FFR
                 ffr=makeFlatFieldRecon(A(keep, :),iA); % make ?flat field? use for masking data
                 ffrNorm=ffr./max(ffr);
-                maskffr=+(ffrNorm>0.05); %threshold at 1%    
+                maskffr=+(ffrNorm>FFRproportion); %threshold at 1%    
                 
                 %Code to view the flat field reconstruction
                 %[Anii2,infoAnii2]=LoadVolumetricData('headvol_2mm',[],'nii');
