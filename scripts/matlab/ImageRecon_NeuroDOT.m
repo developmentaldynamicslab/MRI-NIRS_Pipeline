@@ -27,7 +27,7 @@ function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,pad
 
 %run interactively
 if 0
-    subjectListFile = 'Y1_finalComboSubjListGroup_1Subj.prn';
+    subjectListFile = 'Y1_finalComboSubjListGroup.prn';
     oldSamplingFreq = 25;
     newSamplingFreq = 10;
     paddingStart = 20;
@@ -145,8 +145,14 @@ else
                 
                 %load Prahl extinction coeffs and write to .nirs file
                 if usePrahl
-                    %step through each wavelength
+                    %Prahl mat file has an 'info' structure that is
+                    %overwriting my info from the light model. Prevent this
+                    %from happening...
+                    infoSafe = info;
                     load('Ecoeff_Prahl.mat');
+                    info = infoSafe;
+                    
+                    %step through each wavelength
                     ExtCoeff = zeros(size(SD.Lambda,2),2); %second dim is HbO, HbR
                     for j = 1:size(SD.Lambda,2)
                         ExtCoeff(j,:) = prahlEC(ismember(prahlEC(:,1),SD.Lambda(j)),2:3).*[2.303,2.303]./1000; %divide by 1000 to move to 1/millimolar

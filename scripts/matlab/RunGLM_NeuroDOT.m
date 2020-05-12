@@ -143,7 +143,7 @@ else
                     params.event_length=rDuration;
                     params.zscore=0; %don't zscore the design matrix
                     params.DoFilter=0;
-                   
+                    
                     %HbO
                     [bO,eO,DMO,EDMO]=GLM_181206(cortex_HbO,hrf,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
                     
@@ -163,38 +163,37 @@ else
             end
             
             if didGLM
-                
-                %weighted means across runs -- divide by total stims
-                
-                %%%% need some error checking here -- what do if no stims
-                %%%% across runs for a particular regressor? And do we want
-                %%%% a beta map output in this case?
-                for bct=2:numRegressors+1
-                    b_HbO(:,bct) = b_HbO(:,bct) ./ sum(NData(bct-1,:));
-                    b_HbR(:,bct) = b_HbR(:,bct) ./ sum(NData(bct-1,:));
-                end
-                
-                BetaFile=strcat(subjectList{5}{n},'/',sID,'_Betas_',rName,'.mat');
-                save(BetaFile,'b_HbO','b_HbR','NData');
-                
+                                
                 dim2 = info.tissue.dim; %set time points to 1 for beta map
                 dim2.nVt = 1;
                 
                 %output beta maps for each condition...
                 for bct=2:numRegressors+1
                     
-                    pathname=subjectList{5}{n};
-                    varName2 = ['cond' int2str(regressorList(bct-1))];
-                    
-                    outputname=strcat('/',sID,'_',rName,'_',varName2,'_Unmasked_oxy_ND');
-                    bmap=Good_Vox2vol(b_HbO(:,bct), dim2);
-                    SaveVolumetricData(bmap,dim2,outputname,pathname,'nii');
-                    
-                    outputname=strcat('/',sID,'_',rName,'_',varName2,'_Unmasked_deoxy_ND');
-                    bmap=Good_Vox2vol(b_HbR(:,bct), dim2);
-                    SaveVolumetricData(bmap,dim2,outputname,pathname,'nii');
+                    %weighted means across runs -- divide by total stims
+                    totN = sum(NData(bct-1,:));
+                    if (totN > 0)
+                        b_HbO(:,bct) = b_HbO(:,bct) ./ totN;
+                        b_HbR(:,bct) = b_HbR(:,bct) ./ totN;
+                        
+                        pathname=subjectList{5}{n};
+                        varName2 = ['cond' int2str(regressorList(bct-1))];
+                        
+                        outputname=strcat('/',sID,'_',rName,'_',varName2,'_Unmasked_oxy_ND');
+                        bmap=Good_Vox2vol(b_HbO(:,bct), dim2);
+                        SaveVolumetricData(bmap,dim2,outputname,pathname,'nii');
+                        
+                        outputname=strcat('/',sID,'_',rName,'_',varName2,'_Unmasked_deoxy_ND');
+                        bmap=Good_Vox2vol(b_HbR(:,bct), dim2);
+                        SaveVolumetricData(bmap,dim2,outputname,pathname,'nii');
+                    else
+                        fprintf(fileIDlog,'No events and no beta map for regressor %d for Subject %s\n',bct-1,sID);
+                    end
                     
                 end
+                BetaFile=strcat(subjectList{5}{n},'/',sID,'_Betas_',rName,'.mat');
+                save(BetaFile,'b_HbO','b_HbR','NData');
+                
             else
                 fprintf(fileIDlog,'No regressor events and no beta maps for Subject %s\n',sID);
             end %didGLM
@@ -204,5 +203,4 @@ else
 end %subject file found
 
 fclose(fileIDlog);
-
 
