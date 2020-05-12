@@ -165,6 +165,10 @@ else
             if didGLM
                 
                 %weighted means across runs -- divide by total stims
+                
+                %%%% need some error checking here -- what do if no stims
+                %%%% across runs for a particular regressor? And do we want
+                %%%% a beta map output in this case?
                 for bct=2:numRegressors+1
                     b_HbO(:,bct) = b_HbO(:,bct) ./ sum(NData(bct-1,:));
                     b_HbR(:,bct) = b_HbR(:,bct) ./ sum(NData(bct-1,:));
@@ -176,7 +180,7 @@ else
                 dim2 = info.tissue.dim; %set time points to 1 for beta map
                 dim2.nVt = 1;
                 
-                %output beta mapas for each condition...
+                %output beta maps for each condition...
                 for bct=2:numRegressors+1
                     
                     pathname=subjectList{5}{n};

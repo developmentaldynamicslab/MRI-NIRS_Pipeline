@@ -14,7 +14,16 @@
 %Not currently used in this code, but a parameter one can use in NeuroDOT
 %so setting it explicitly here.
 
-function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion)
+%FFRproportion --> threshold the spectroscopy results by normalizing the
+%flat field reconstruction by the max(ffr) and then take any normalized
+%value > FFRproportion (e.g., anything > 5%)
+
+%usePrahl --> use extinction coefficients from Scott Prahl. If this flag is
+%set to 0, we are assuming the desired coeffs are in SD.extCoef in the
+%.nirs file and in (1/cm)/(moles/liter) units. Note that these values are
+%converted to millimolar in the code.
+
+function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion,usePrahl)
 
 %run interactively
 if 0
@@ -23,7 +32,13 @@ if 0
     newSamplingFreq = 10;
     paddingStart = 20;
     paddingEnd = 20;
+    baseSDmm = 30;
+    FFRproportion = 0.05;
+    usePrahl = 1;
 end
+
+%flag to view the FFR data for each subject/run if desired
+viewFFR = 0;
 
 logFilename = ['ImageRecon_NeuroDOT_', datestr(now, 'yyyy-mm-dd-THHMMSS') '.log'];
 fileIDlog = fopen(logFilename,'a');
@@ -128,6 +143,19 @@ else
                 %Get preprocessed NIRS file into NeuroDOT format
                 load(filenames{r}, '-mat');
                 
+                %load Prahl extinction coeffs and write to .nirs file
+                if usePrahl
+                    %step through each wavelength
+                    load('Ecoeff_Prahl.mat');
+                    ExtCoeff = zeros(size(SD.Lambda,2),2); %second dim is HbO, HbR
+                    for j = 1:size(SD.Lambda,2)
+                        ExtCoeff(j,:) = prahlEC(ismember(prahlEC(:,1),SD.Lambda(j)),2:3).*[2.303,2.303]./1000; %divide by 1000 to move to 1/millimolar
+                    end
+                    SD.extCoef = ExtCoeff.*1000; %write output in 1/molar
+                    save(char(filenames{r}),'aux','d','dStd','ml','procInput','procResult','s','SD','systemInfo','t','tdml','tIncMan','userdata','-mat');
+                end
+                SD.extCoef = SD.extCoef./1000; %assuming input coeffs are in 1/molar; convert to 1/millimolar
+                                
                 %find first and last event in s matrix -- this defines the window
                 %of data we want to reconstruct...minus Xs padding.
                 info.system.framerate=oldSamplingFreq;
@@ -145,7 +173,7 @@ else
                 for a=1:size(i,1)
                     new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
                 end
-                                
+                
                 %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
                 data=procResult.dod(startframe:endframe,:)';
                 meas=size(SD.MeasList,1);
@@ -155,13 +183,11 @@ else
                 info.pairs.Src=SD.MeasList(:,1);
                 info.pairs.Det=SD.MeasList(:,2);
                 info.pairs.WL=SD.MeasList(:,4);
-                info.pairs.lambda=cat(1,ones(ch,1).*procInput.SD.Lambda(1), ones(ch,1).*procInput.SD.Lambda(2));
+                info.pairs.lambda=cat(1,ones(ch,1).*SD.Lambda(1), ones(ch,1).*SD.Lambda(2));
                 info.pairs.NN=ones(meas,1);
                 info.pairs.Mod=repmat({'CW'},[meas,1]);
                 info.pairs.r2d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS; ARE THESE IN .NIRS FILE?
                 info.pairs.r3d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
-                
-                %%%%%%%%%%%%%%%%% UPDATE METADATA?
                 
                 if (r == 1)
                     imageFileND=strcat(subjectList{5}{n},'/Adot_',sID,'_nd2_2mm');
@@ -175,78 +201,89 @@ else
                         procResult.SD.MeasListAct(ct+ch) = 0;
                     end
                 end
+                
                 info.MEAS.GI=procResult.SD.MeasListAct;
                 
-                %%%%read in regressors (s matrix in .nirs file)...
-                [Nt,Nsptype]=size(new_s);
-                info.paradigm.synchpts=[];
-                info.paradigm.synchtype=[];
-                for j=1:Nsptype
-                    events=find(new_s(:,j));
-                    info.paradigm.synchpts=cat(1,info.paradigm.synchpts,events);
-                    info.paradigm.synchtype=cat(1,info.paradigm.synchtype,ones(length(events),1).*j);
-                end
-                [info.paradigm.synchpts,idx]=sort(info.paradigm.synchpts);
-                info.paradigm.synchtype=info.paradigm.synchtype(idx);
-                
-                for j=1:Nsptype
-                    info.paradigm.(['Pulse_',num2str(j+1)])=find(info.paradigm.synchtype==j);
-                end
-                
-                info.paradigm.Pulse_1=[]; %dummy regressor in NeuroDOT
-                
-                %% Image reconstruction
-                lmdata=data;
-                
-                if (newSamplingFreq ~= info.system.framerate)
+                %%if no data, move on...                
+                if sum(procResult.SD.MeasListAct) == 0
+                    fprintf(fileIDlog,'All NIRS channels pruned for Subject %s Run %d\n',sID,r);
+                else
                     
-                    if isfield(info.paradigm,'init_synchpts')
-                        info.paradigm = rmfield(info.paradigm,'init_synchpts');
+                    %%%%read in regressors (s matrix in .nirs file)...
+                    [Nt,Nsptype]=size(new_s);
+                    info.paradigm.synchpts=[];
+                    info.paradigm.synchtype=[];
+                    for j=1:Nsptype
+                        events=find(new_s(:,j));
+                        info.paradigm.synchpts=cat(1,info.paradigm.synchpts,events);
+                        info.paradigm.synchtype=cat(1,info.paradigm.synchtype,ones(length(events),1).*j);
                     end
-                    params.rs_Hz=newSamplingFreq;         % resample freq
-                    params.rs_tol=1e-5;     % resample tolerance
-                    [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
-                end
-                
-                Nvox=size(A,2);
-                Nt=size(lmdata,2);
-                cortex_mu_a=zeros(Nvox,Nt,2);
-                
-                %%step through wavelengths...
-                for j = 1:size(procInput.SD.Lambda,2)
-                    keep = (info.pairs.WL == j) & info.MEAS.GI; %COULD ADD CUTOFF HERE BASED ON DISTANCE
-                    disp('> Inverting A')
-                    iA = Tikhonov_invert_Amat(A(keep, :), params.lambda_1, params.lambda_2); % Invert A-Matrix
-                    disp('> Smoothing iA')
-                    iA = smooth_Amat(iA, info.tissue.dim, params.gsigma);         % Smooth Inverted A-Matrix
-                    cortex_mu_a(:, :, j) = reconstruct_img(lmdata(keep, :), iA);% Reconstruct Image Volume
-                end
-                
-                % FFR
-                ffr=makeFlatFieldRecon(A(keep, :),iA); % make ?flat field? use for masking data
-                ffrNorm=ffr./max(ffr);
-                maskffr=+(ffrNorm>FFRproportion); %threshold at 1%    
-                
-                %Code to view the flat field reconstruction
-                %[Anii2,infoAnii2]=LoadVolumetricData('headvol_2mm',[],'nii');
-                %ffrnormb=Good_Vox2vol(ffrNorm,info.tissue.dim);
-                %ffrnormc=Good_Vox2vol(maskffr,info.tissue.dim);
-                %PlotSlices(Anii2,info.tissue.dim,[],ffrnormc)
-                
-                %% Spectroscopy
-                E=SD.extCoef;
-                cortex_Hb = spectroscopy_img(cortex_mu_a, E);
-                
-                cortex_Hb = bsxfun(@times, cortex_Hb, maskffr);
-                
-                cortex_HbO = cortex_Hb(:, :, 1).*1000; %convert to micromolar; see 10/12/19 email
-                cortex_HbR = cortex_Hb(:, :, 2).*1000; %convert to micromolar; see 10/12/19 email
-                cortex_HbT = cortex_HbO + cortex_HbR;
-                
-                %% Save your data--output in ND format to save space.
-                varName2 = ['run' int2str(r)];
-                NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND');
-                save(NDFile,'cortex_HbO','cortex_HbR','info', '-v7.3');
+                    [info.paradigm.synchpts,idx]=sort(info.paradigm.synchpts);
+                    info.paradigm.synchtype=info.paradigm.synchtype(idx);
+                    
+                    for j=1:Nsptype
+                        info.paradigm.(['Pulse_',num2str(j+1)])=find(info.paradigm.synchtype==j);
+                    end
+                    
+                    info.paradigm.Pulse_1=[]; %dummy regressor in NeuroDOT
+                    
+                    %% Image reconstruction
+                    lmdata=data;
+                    
+                    if (newSamplingFreq ~= info.system.framerate)
+                        
+                        if isfield(info.paradigm,'init_synchpts')
+                            info.paradigm = rmfield(info.paradigm,'init_synchpts');
+                        end
+                        params.rs_Hz=newSamplingFreq;         % resample freq
+                        params.rs_tol=1e-5;     % resample tolerance
+                        [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
+                    end
+                    
+                    Nvox=size(A,2);
+                    Nt=size(lmdata,2);
+                    cortex_mu_a=zeros(Nvox,Nt,2);
+                    
+                    %%step through wavelengths...
+                    for j = 1:size(SD.Lambda,2)
+                        keep = (info.pairs.WL == j) & info.MEAS.GI; %COULD ADD CUTOFF HERE BASED ON DISTANCE
+                        disp('> Inverting A')
+                        iA = Tikhonov_invert_Amat(A(keep, :), params.lambda_1, params.lambda_2); % Invert A-Matrix
+                        disp('> Smoothing iA')
+                        iA = smooth_Amat(iA, info.tissue.dim, params.gsigma);         % Smooth Inverted A-Matrix
+                        cortex_mu_a(:, :, j) = reconstruct_img(lmdata(keep, :), iA);% Reconstruct Image Volume
+                    end
+                    
+                    % FFR
+                    ffr=makeFlatFieldRecon(A(keep, :),iA); % make ?flat field? use for masking data
+                    ffrNorm=ffr./max(ffr);
+                    maskffr=+(ffrNorm>FFRproportion); %threshold at 1%
+                    
+                    %Code to view the flat field reconstruction
+                    if viewFFR
+                        headvolFile=strcat(subjectList{3}{n},'/viewer/Subject/headvol_2mm');
+                        [Anii2,infoAnii2]=LoadVolumetricData(headvolFile,[],'nii');
+                        ffrnormb=Good_Vox2vol(ffrNorm,info.tissue.dim);
+                        ffrnormc=Good_Vox2vol(maskffr,info.tissue.dim);
+                        PlotSlices(Anii2,info.tissue.dim,[],ffrnormc)
+                    end
+                    
+                    %% Spectroscopy
+                    E=SD.extCoef;
+                    cortex_Hb = spectroscopy_img(cortex_mu_a, E);
+                    
+                    cortex_Hb = bsxfun(@times, cortex_Hb, maskffr);
+                    
+                    cortex_HbO = cortex_Hb(:, :, 1).*1000; %convert to micromolar; see 10/12/19 email
+                    cortex_HbR = cortex_Hb(:, :, 2).*1000; %convert to micromolar; see 10/12/19 email
+                    cortex_HbT = cortex_HbO + cortex_HbR;
+                    
+                    %% Save your data--output in ND format to save space.
+                    varName2 = ['run' int2str(r)];
+                    NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND');
+                    save(NDFile,'cortex_HbO','cortex_HbR','info', '-v7.3');
+                    
+                end %channels pruned
                 
             end %runs
             
