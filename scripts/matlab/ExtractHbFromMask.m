@@ -198,7 +198,7 @@ for n=1:numSubjects
         OutFileN=strcat(subjectList{16}{n},'/TsHb_',rName,'_',effectN,'.csv');
         if (exist(OutFileN,'file') == 0)
             outfile = fopen(OutFileN,'w');
-            fprintf(outfile,'AnalysisLabel,Subject,Effect,Cluster,Cond,Chromophore,N,Time,Mean,SE\n');
+            fprintf(outfile,'AnalysisLabel,Subject,Effect,Cluster,Cond,Chromophore,N,Time,Mean,Sum,SE\n');
         else
             outfile = fopen(OutFileN,'a');
         end
