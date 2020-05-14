@@ -101,6 +101,7 @@ for n=1:numSubjects
     %note that the 2 index = HbO and HbR
     NData = zeros(numEff,MaxClustValue,numRegressors,numRuns); %count of stims for weighting
     MData = zeros(numEff,MaxClustValue,numRegressors,2,numRuns,dt); %mean
+    SData = zeros(numEff,MaxClustValue,numRegressors,2,numRuns,dt); %sum
     SEData = zeros(numEff,MaxClustValue,numRegressors,2,numRuns,dt); %se
     
     for r=1:numRuns
@@ -155,6 +156,7 @@ for n=1:numSubjects
                         [BA_out,BSTD_out,BT_out,blocks] = BlockAverage(HbO_cluster_only, info.paradigm.synchpts(stims), dt);
                         
                         MData(ef,cl,reg,1,r,:) = mean(BA_out); % your mean vector in micromolar;
+                        SData(ef,cl,reg,1,r,:) = sum(BA_out); % your summed vector in micromolar;
                         SEData(ef,cl,reg,1,r,:) = (mean(BSTD_out))/sqrt(size(stims,1)); %SE
 
 %                         figure;
@@ -166,6 +168,7 @@ for n=1:numSubjects
                         %extract block average time series for HbR...
                         [BA_out,BSTD_out,BT_out,blocks] = BlockAverage(HbR_cluster_only, info.paradigm.synchpts(stims), dt);
                         MData(ef,cl,reg,2,r,:) = mean(BA_out); % your mean vector in micromolar;
+                        SData(ef,cl,reg,2,r,:) = sum(BA_out); % your summed vector in micromolar;
                         SEData(ef,cl,reg,2,r,:) = (mean(BSTD_out))/sqrt(size(stims,1)); %SE
  
 %                         figure;
@@ -208,18 +211,20 @@ for n=1:numSubjects
                     
                     W=zeros(numRuns,1);
                     AM=zeros(numRuns,dt);
-                    AS=zeros(numRuns,dt);
+                    ASE=zeros(numRuns,dt);
                     
                     %compute weighting over number of stims per run
                     for r=1:numRuns
                         W(r,1) = squeeze(NData(ef,cl,reg,r));
                         AM(r,:) = squeeze(MData(ef,cl,reg,Hb,r,:));
-                        AS(r,:) = squeeze(SEData(ef,cl,reg,Hb,r,:));
+                        AS(r,:) = squeeze(SData(ef,cl,reg,Hb,r,:));
+                        ASE(r,:) = squeeze(SEData(ef,cl,reg,Hb,r,:));
                     end
                     sumW=sum(W);
                     W=W/sum(W);
                     WM = mean(W.'*AM,1);
-                    MSE = mean(AS,1); %don't do a weighted SE here as SE already weighted by sqrt(N)
+                    WS = mean(W.'*AS,1);
+                    MSE = mean(ASE,1); %don't do a weighted SE here as SE already weighted by sqrt(N)
                     x = (1:dt)/newSamplingFreq; %HRF time in seconds
 
                     if showHRF
@@ -240,9 +245,9 @@ for n=1:numSubjects
                     
                     for i=1:dt
                         if Hb == 1
-                            fprintf(outfile,'%s,%s,%s,%d,%d,%s,%d,%.1f,%8.6f,%8.6f\n',rName,char(subjects{n}),effName(13:size(effName,2)-4),cl,regressorList(reg),'HbO',sumW,x(i),WM(1,i),MSE(1,i));
+                            fprintf(outfile,'%s,%s,%s,%d,%d,%s,%d,%.1f,%8.6f,%8.6f,%8.6f\n',rName,char(subjects{n}),effName(13:size(effName,2)-4),cl,regressorList(reg),'HbO',sumW,x(i),WM(1,i),WS(1,i),MSE(1,i));
                         else
-                            fprintf(outfile,'%s,%s,%s,%d,%d,%s,%d,%.1f,%8.6f,%8.6f\n',rName,char(subjects{n}),effName(13:size(effName,2)-4),cl,regressorList(reg),'HbR',sumW,x(i),WM(1,i),MSE(1,i));
+                            fprintf(outfile,'%s,%s,%s,%d,%d,%s,%d,%.1f,%8.6f,%8.6f,%8.6f\n',rName,char(subjects{n}),effName(13:size(effName,2)-4),cl,regressorList(reg),'HbR',sumW,x(i),WM(1,i),WS(1,i),MSE(1,i));
                         end
                     end                        
                 end

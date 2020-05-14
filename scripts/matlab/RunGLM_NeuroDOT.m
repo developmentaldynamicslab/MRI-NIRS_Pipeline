@@ -187,6 +187,8 @@ else
                         bmap=Good_Vox2vol(b_HbR(:,bct), dim2);
                         SaveVolumetricData(bmap,dim2,outputname,pathname,'nii');
                     else
+                        b_HbO(:,bct) = zeros(size(cortex_HbO,1),1); 
+                        b_HbR(:,bct) = zeros(size(cortex_HbR,1),1);
                         fprintf(fileIDlog,'No events and no beta map for regressor %d for Subject %s\n',bct-1,sID);
                     end
                     
