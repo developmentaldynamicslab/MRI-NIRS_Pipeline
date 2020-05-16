@@ -82,8 +82,7 @@ do
   #echo "Subject Mask: $subjectBrainMask"
   #################################################################
 
-
-  3drefit -orient LPI $subjectDir'/viewer/Subject/headvol.nii'
-
+  fixOrientationOxy.sh -d $subjectResultDir -r
+  
   let index+=1
 done
