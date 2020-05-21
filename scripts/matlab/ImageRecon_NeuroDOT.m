@@ -31,7 +31,7 @@ if 0
     oldSamplingFreq = 25;
     newSamplingFreq = 10;
     paddingStart = 20;
-    paddingEnd = 20;
+    paddingEnd = 40;
     baseSDmm = 30;
     FFRproportion = 0.05;
     usePrahl = 1;

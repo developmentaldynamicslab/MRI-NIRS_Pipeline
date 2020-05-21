@@ -114,6 +114,8 @@ for n=1:numSubjects
         %Load NeuroDOT image file: data are voxels x time
         load(NDFile,'-mat');
         
+        %ch 34 = ef 27
+        %ch 35 = ef 28
         for ef=1:numEff
             
             %Load effect mask in subject space
@@ -145,6 +147,55 @@ for n=1:numSubjects
                 %                 HbO_TimeTrace=mean(HbO_cluster_only,1);
                 HbR_cluster_only = cortex_HbR(keepGood,:);
                 %                 HbR_TimeTrace=mean(HbR_cluster_only,1);
+                
+                if 0
+                    HbO_TimeMAvg = mean(HbO_cluster_only,1);
+                    HbR_TimeMAvg = mean(HbR_cluster_only,1);
+                    
+                    %load('012run2.mat','-mat');
+                    %load('118run1.mat','-mat');
+                    %load('06IND103B-VWM2_run01.nirs','-mat');
+                    %load('103run1.mat','-mat');
+                    load('239run2.mat','-mat');
+
+                    info.system.framerate=25; %old frame rate
+                    paddingStart=20;
+                    paddingEnd=40;
+                    [i,j]=find(procResult.s == 1);
+                    startframe = min(i) - (info.system.framerate*paddingStart);
+                    if (startframe < 1)
+                        startframe = 1;
+                    end
+                    endframe = max(i) + (info.system.framerate*paddingEnd);
+                    if (endframe > size(procResult.s,1))
+                        endframe = size(procResult.s,1);
+                    end
+                    goodtime = endframe - startframe + 1;
+                    new_s = zeros(goodtime,size(procResult.s,2));
+                    for a=1:size(i,1)
+                        new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
+                    end
+                    
+                    %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
+                    data=procResult.dod(startframe:endframe,:)';
+                    lmdata=data;
+                    newSamplingFreq=10;
+                    
+                    params.rs_Hz=newSamplingFreq;         % resample freq
+                    params.rs_tol=1e-5;     % resample tolerance
+                    [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
+
+                    figure;
+                    plot(lmdata(35,:)*20,'k');
+                    hold on;
+                    plot(HbO_TimeMAvg,'r');
+                    hold off;
+                    figure;
+                    plot(lmdata(71,:)*20,'k');
+                    hold on;
+                    plot(HbR_TimeMAvg,'r');
+                    hold off;
+                end
                 
                 %compute weighted mean over runs (based on stims per run)
                 for reg=1:numRegressors
