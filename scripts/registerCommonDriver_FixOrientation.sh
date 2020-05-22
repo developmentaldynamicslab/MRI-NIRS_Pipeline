@@ -81,7 +81,7 @@ do
   #echo "Subject Mask: $subjectBrainMask"
   #################################################################
 
-  $scriptPath/fixOrientationOxy.sh -d $subjectDir/viewer/Subject -r
-  
+  fixOrientationOxy.sh -d $subjectDir/viewer/Subject -r
+
   let index+=1
 done
