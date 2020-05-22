@@ -165,7 +165,7 @@ done
 
 
 
-warpImages=`ls ${subjectDir}/*oxy*.nii`
+warpImages=`ls ${subjectDir}/AdotVol_NeuroDOT*.nii`
 for i in $warpImages
 do
   imageName=`basename $i`

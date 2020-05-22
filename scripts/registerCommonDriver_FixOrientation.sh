@@ -5,7 +5,6 @@ export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Buil
 
 # Setup Evironmental Variables
 scriptPath=`dirname $0`
-scriptPath=$scriptPath/matlab
 
 if [ $# != 1 ]; then
   echo "ERROR: Inavlid usage."
@@ -82,7 +81,7 @@ do
   #echo "Subject Mask: $subjectBrainMask"
   #################################################################
 
-  fixOrientationOxy.sh -d $subjectResultDir -r
+  $scriptPath/fixOrientationOxy.sh -d $subjectDir/viewer/Subject -r
   
   let index+=1
 done
