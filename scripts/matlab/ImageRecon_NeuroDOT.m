@@ -27,11 +27,11 @@ function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,pad
 
 %run interactively
 if 0
-    subjectListFile = 'Y1_finalComboSubjListGroup.prn';
+    subjectListFile = 'Y2_finalComboSubjListGroup3.prn';
     oldSamplingFreq = 25;
     newSamplingFreq = 10;
     paddingStart = 20;
-    paddingEnd = 20;
+    paddingEnd = 40;
     baseSDmm = 30;
     FFRproportion = 0.05;
     usePrahl = 1;

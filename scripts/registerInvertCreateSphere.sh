@@ -82,6 +82,10 @@ do
   #echo "Subject Mask: $subjectBrainMask"
   #################################################################
 
+  #set these as input parameters...
+  let nch=35 #num channels - 1
+  let radiussquared=100
+
   cp $subjectDir'/viewer/Subject/headvol_2mm.nii' $clustDir/$i'_headvol2mm.nii'
   cp $subjectDir'/viewer/Subject/AdotVol_NeuroDOT2mm.nii' $clustDir/$i'_AdotVol_NeuroDOT2mm.nii'
 
@@ -107,7 +111,7 @@ do
     basename2=$clustDir/$i'_clust_order_Peaks'$k'_BrainOnly.nii'
     3dcalc -a $clustDir/$i'_headvol2mm.nii' \
       -prefix $basename \
-      -expr 'step(25-(x-'${MX[$j]}')*(x-'${MX[$j]}')-(y-'${MY[$j]}')*(y-'${MY[$j]}')-(z-'${MZ[$j]}')*(z-'${MZ[$j]}'))'
+      -expr 'step('$radiussquared'-(x-'${MX[$j]}')*(x-'${MX[$j]}')-(y-'${MY[$j]}')*(y-'${MY[$j]}')-(z-'${MZ[$j]}')*(z-'${MZ[$j]}'))'
 
     #clip to brain
     3dcalc -a $basename -b $clustDir/$i'_headvol2mm_BrainOnly.nii' -expr 'a*b' -prefix $basename2
