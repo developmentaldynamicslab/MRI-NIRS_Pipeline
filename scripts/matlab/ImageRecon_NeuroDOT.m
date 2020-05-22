@@ -210,6 +210,8 @@ else
                 
                 info.MEAS.GI=procResult.SD.MeasListAct;
                 
+                %global signal regression about here...
+                
                 %%if no data, move on...                
                 if sum(procResult.SD.MeasListAct) == 0
                     fprintf(fileIDlog,'All NIRS channels pruned for Subject %s Run %d\n',sID,r);

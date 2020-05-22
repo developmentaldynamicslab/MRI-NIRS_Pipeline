@@ -148,7 +148,7 @@ for n=1:numSubjects
                 HbR_cluster_only = cortex_HbR(keepGood,:);
                 %                 HbR_TimeTrace=mean(HbR_cluster_only,1);
                 
-                if 0
+                if 1
                     HbO_TimeMAvg = mean(HbO_cluster_only,1);
                     HbR_TimeMAvg = mean(HbR_cluster_only,1);
                     
@@ -177,7 +177,7 @@ for n=1:numSubjects
                     end
                     
                     %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
-                    data=procResult.dod(startframe:endframe,:)';
+                    data=squeeze(procResult.dc(startframe:endframe,1,:))'.*10^6;
                     lmdata=data;
                     newSamplingFreq=10;
                     
@@ -186,12 +186,21 @@ for n=1:numSubjects
                     [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
 
                     figure;
-                    plot(lmdata(35,:)*20,'k');
+                    plot(lmdata(35,:),'k');
                     hold on;
                     plot(HbO_TimeMAvg,'r');
                     hold off;
+
+                    data=squeeze(procResult.dc(startframe:endframe,2,:))'.*10^6;
+                    lmdata=data;
+                    newSamplingFreq=10;
+                    
+                    params.rs_Hz=newSamplingFreq;         % resample freq
+                    params.rs_tol=1e-5;     % resample tolerance
+                    [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
+                                      
                     figure;
-                    plot(lmdata(71,:)*20,'k');
+                    plot(lmdata(35,:),'k');
                     hold on;
                     plot(HbR_TimeMAvg,'r');
                     hold off;
