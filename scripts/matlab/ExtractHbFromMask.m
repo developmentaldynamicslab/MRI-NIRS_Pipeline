@@ -2,7 +2,7 @@ function ExtractHbFromMask(subjectListFile,regressorList,rName,newSamplingFreq,H
 
 %to run interactively for debugging...
 if(0)
-    subjectListFile='Combo_finalSubjListGroup_1Subj.prn';
+    subjectListFile='Y2_finalComboSubjListGroup3.prn';
     regressorList=[1,2,3];
     rName='Test';
     newSamplingFreq=10;

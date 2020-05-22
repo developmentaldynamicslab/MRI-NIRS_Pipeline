@@ -23,11 +23,11 @@
 %.nirs file and in (1/cm)/(moles/liter) units. Note that these values are
 %converted to millimolar in the code.
 
-function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion,usePrahl)
+function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion,usePrahl,GSR)
 
 %run interactively
 if 0
-    subjectListFile = 'Y2_finalComboSubjListGroup3.prn';
+    subjectListFile = 'Y1_finalComboSubjListGroup.prn';
     oldSamplingFreq = 25;
     newSamplingFreq = 10;
     paddingStart = 20;
@@ -35,6 +35,7 @@ if 0
     baseSDmm = 30;
     FFRproportion = 0.05;
     usePrahl = 1;
+    GSR = 1; %use global signal regression
 end
 
 %flag to view the FFR data for each subject/run if desired
@@ -209,9 +210,7 @@ else
                 end
                 
                 info.MEAS.GI=procResult.SD.MeasListAct;
-                
-                %global signal regression about here...
-                
+                                
                 %%if no data, move on...                
                 if sum(procResult.SD.MeasListAct) == 0
                     fprintf(fileIDlog,'All NIRS channels pruned for Subject %s Run %d\n',sID,r);
@@ -237,7 +236,19 @@ else
                     
                     %% Image reconstruction
                     lmdata=data;
-                    
+
+                    if (GSR)                       
+                        % lmdata is Nm measurements by Nt time with first Nm/2 as 1 wavelength and 2nd set as 2nd wavelength.
+                        keep1= ((info.MEAS.GI==1).*(info.pairs.WL==1))==1;
+                        keep2= ((info.MEAS.GI==1).*(info.pairs.WL==2))==1;
+ 
+                        WL1gdave=nanmean(lmdata(keep1,:),1);
+                        WL2gdave=nanmean(lmdata(keep2,:),1);
+                        
+                        meanSign = cat(1,WL1gdave, WL2gdave);   % 2xNt matrix of mean signals for each wavelength
+                        lmdata = regcorr(lmdata, info, meanSign);
+                    end
+
                     if (newSamplingFreq ~= info.system.framerate)
                         
                         if isfield(info.paradigm,'init_synchpts')
