@@ -1,6 +1,7 @@
 %regressorList = vector of regressor numbers you want to include in the GLM
 
-%rDuration = the duration of the boxcar input for each event in the GLM
+%rDuration = the duration of the boxcar input for each event in the GLM (in
+%seconds*newSamplingFreq -- so a 10s boxcar at 10Hz = 100)
 
 %rName = a text input used for labelling the output files from this GLM
 
@@ -96,9 +97,9 @@ else
         
         foldernames = {files.folder};
         files = {files.name};
-        filenames = strcat(foldernames,'/',files);
+        filenamesND = strcat(foldernames,'/',files);
         
-        numRuns=size(filenames,2);
+        numRuns=size(filenamesND,2);
         
         if numRuns == 0
             fprintf(fileIDlog,'No ND files for Subject %s\n',sID);
@@ -108,8 +109,9 @@ else
             NData = zeros(numRegressors,numRuns); %count of stims for weighting
             for r=1:numRuns
                 
-                varName2 = ['run' int2str(r)];
-                NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND.mat');
+                %varName2 = ['run' int2str(r)];
+                %NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND.mat');
+                NDFile=filenamesND{r};
                 
                 %Load NeuroDOT image file: data are voxels x time
                 load(NDFile,'-mat');
@@ -148,7 +150,6 @@ else
                     [bO,eO,DMO,EDMO]=GLM_181206(cortex_HbO,hrf,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
                     
                     %HbR
-                    %%% WHAT WILL GLM RETURN IF 0 STIMS FOR A REGRESSOR?
                     [bR,eR,DMR,EDMR]=GLM_181206(cortex_HbR,hrfR,info,params); %b is the beta values for each event,e is the reisduals, dm is the design matrix, edm is a different version of the design matrix you can set a flag to use where every
                     
                     %Compute weighted sum for weighted mean
