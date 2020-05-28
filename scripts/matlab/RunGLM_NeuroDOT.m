@@ -119,7 +119,7 @@ else
                 %check if events in regressors specified by user
                 doGLM = 0;
                 for j=1:numRegressors
-                    stims = find(info.paradigm.synchtype == regressorListND(j));
+                    stims = find(info.paradigm.synchtype == regressorList(j));
                     NData(j,r) = size(stims,1);
                     
                     if ~isempty(info.paradigm.(['Pulse_',num2str(regressorListND(j))]))
