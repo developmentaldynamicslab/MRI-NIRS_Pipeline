@@ -2,14 +2,14 @@ function ExtractHbFromMask(subjectListFile,regressorList,rName,newSamplingFreq,H
 
 %to run interactively for debugging...
 if(0)
-    subjectListFile='Y2_finalComboSubjListGroup3.prn';
+    subjectListFile='Y1_finalComboSubjListGroup.prn';
     regressorList=[1,2,3];
-    rName='Test';
+    rName='India';
     newSamplingFreq=10;
-    HRFDuration=10;
+    HRFDuration=18;
     MaxClustValue=3;    
     checkAlignment=0; %toggle on/off to view headvol and mask alignment for each subject
-    showHRF=1; %display figure per subject, effect, and cluster
+    showHRF=0; %display figure per subject, effect, and cluster
 end
 
 
@@ -82,9 +82,9 @@ for n=1:numSubjects
     
     foldernames = {files.folder};
     files = {files.name};
-    filenames = strcat(foldernames,'/',files);
+    filenamesND = strcat(foldernames,'/',files);
     
-    numRuns=size(filenames,2);
+    numRuns=size(filenamesND,2);
     
     %process data for each mask effect file...
     inputFileStr=strcat(subjectList{16}{n},'/clust_order_*.nii');
@@ -106,8 +106,9 @@ for n=1:numSubjects
     
     for r=1:numRuns
         
-        varName2 = ['run' int2str(r)];
-        NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND.mat');
+        %varName2 = ['run' int2str(r)];
+        %NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND.mat');
+        NDFile=filenamesND{r};
         
         %Load NeuroDOT image file: data are voxels x time
         load(NDFile,'-mat');
@@ -211,6 +212,7 @@ for n=1:numSubjects
                     
                     W=zeros(numRuns,1);
                     AM=zeros(numRuns,dt);
+                    AS=zeros(numRuns,dt);
                     ASE=zeros(numRuns,dt);
                     
                     %compute weighting over number of stims per run
