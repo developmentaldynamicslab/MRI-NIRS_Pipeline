@@ -12,6 +12,7 @@ if(0)
     checkAlignment=0; %toggle on/off to view headvol and mask alignment for each subject
 end
 
+nPlotsPerFig = 6;
 
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
@@ -188,11 +189,11 @@ for n=1:numSubjects
                     params.rs_tol=1e-5;     % resample tolerance
                     [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
                     
-                    if mod(ef-1,6) == 0
+                    if mod(ef-1,nPlotsPerFig) == 0
                         figure;
                         figct=figct+1;
                     end
-                    subplot(6,1,mod(ef-1,6)+1);
+                    subplot(nPlotsPerFig,1,mod(ef-1,nPlotsPerFig)+1);
                     plot(lmdata(effCh,:),'k');
                     hold on;
                     if chrom == 1
@@ -218,7 +219,7 @@ for n=1:numSubjects
                     
                 end %while cluster
                 
-                if mod(ef-1,6) == 5
+                if mod(ef-1,nPlotsPerFig) == 5
                     figName = strcat(sID,'_Run',int2str(r),'_Chrom',int2str(chrom),'_Figure',int2str(figct));
                     savefig(figName);
                 end
