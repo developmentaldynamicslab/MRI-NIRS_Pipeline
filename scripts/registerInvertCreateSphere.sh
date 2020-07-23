@@ -83,7 +83,7 @@ do
   #################################################################
 
   #set these as input parameters...
-  let nch=35 #num channels - 1
+  let nch=13 #num channels - 1
   let radiussquared=100
 
   cp $subjectDir'/viewer/Subject/headvol_2mm.nii' $clustDir/$i'_headvol2mm.nii'
@@ -93,7 +93,7 @@ do
       -prefix $clustDir/$i'_headvol2mm_BrainOnly.nii' \
       -expr 'step(a-1)'
 
-  for j in {0..35}
+  for j in {0..13}
   do
     3dcalc -a $clustDir/$i'_AdotVol_NeuroDOT2mm.nii'[$j] -b $clustDir/$i'_headvol2mm_BrainOnly.nii' -expr 'a*b' -prefix $clustDir/$i'_Temp.nii'
     3dExtrema -maxima -nbest 1 -quiet -volume $clustDir/$i'_Temp.nii' >> $clustDir/$i'_Mvalues.1D'
@@ -104,7 +104,7 @@ do
   MY=(`cat $clustDir/$i'_Mvalues.1D' | awk '{print $4}'`)
   MZ=(`cat $clustDir/$i'_Mvalues.1D' | awk '{print $5}'`)
 
-  for j in {0..35}
+  for j in {0..13}
   do
     let k=j+1
     basename=$clustDir/$i'_clust_order_Peaks'$k'.nii'
@@ -120,7 +120,7 @@ do
   let index+=1
 done
 
-for j in {0..35}
+for j in {0..13}
 do
   let k=j+1
   basename2=$clustDir/'clust_order_Peaks'$k'_BrainOnly.nii'

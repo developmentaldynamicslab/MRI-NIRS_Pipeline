@@ -1,6 +1,10 @@
 function ExtractHbFromMaskByChannel(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,HRFDuration,MaxClustValue,checkAlignment)
 
 %to run interactively for debugging...
+
+
+%% SW - MAGNITUDE IS A LOT SMALLER FOR NIRX FILE - DOES THAT MEAN THE SENSITIVITY PROFILE IS A LOT BIGGER?
+
 if(0)
     subjectListFile='Y2_finalComboSubjListGroup3.prn';
     oldSamplingFreq = 25;
@@ -12,7 +16,7 @@ if(0)
     checkAlignment=0; %toggle on/off to view headvol and mask alignment for each subject
 end
 
-nPlotsPerFig = 6;
+nPlotsPerFig = 7;
 
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
@@ -126,7 +130,7 @@ for n=1:numSubjects
             figct=0;
             for ef=1:numEff
                 
-                effName = char(filesEff(ef));
+                effName = char(filesEff(ef)); %% SW - NOT ASCENDING ORDER.
                 effCh = str2double(effName(18:19));
                 if isnan(effCh)
                     effCh = str2double(effName(18:18));
@@ -150,7 +154,7 @@ for n=1:numSubjects
                 end
                 
                 %iterate through the clusters until no new entries
-                cl=1;
+                cl=1;     %%% SW HARD-CODING - CAN TAKE THIS FROM THE FLAGS
                 keepVox = find(MaskData(:) == cl);
                 while size(keepVox,1) > 0
                     
@@ -183,11 +187,11 @@ for n=1:numSubjects
                     %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
                     data=squeeze(procResult.dc(startframe:endframe,chrom,:))'.*10^6;
                     lmdata=data;
-                    %% newSamplingFreq=10;
+                   % newSamplingFreq=7.8;  %%% SW SAMPLING FREQUENCY 
                     
                     params.rs_Hz=newSamplingFreq;         % resample freq
                     params.rs_tol=1e-5;     % resample tolerance
-                    [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
+                    [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol); %%% SW WHAT IS THIS?
                     
                     if mod(ef-1,nPlotsPerFig) == 0
                         figure;
