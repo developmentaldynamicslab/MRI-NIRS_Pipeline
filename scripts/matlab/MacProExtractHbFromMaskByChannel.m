@@ -99,7 +99,7 @@ for n=1:numSubjects
     filenamesNIRS = strcat(foldernamesNIRS,'/',filesNIRS);
     
     %process data for each mask effect file...
-    inputFileStr=strcat(subjectList{16}{n},'/*_clust_order_*.nii');  %%% SW CORRECTION FOR FILENAME
+    inputFileStr=strcat(subjectList{16}{n},'/clust_order_*.nii');
     files=dir(inputFileStr);
     
     foldernames = {files.folder};
@@ -183,7 +183,7 @@ for n=1:numSubjects
                     %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
                     data=squeeze(procResult.dc(startframe:endframe,chrom,:))'.*10^6;
                     lmdata=data;
-                    %% newSamplingFreq=10;
+                    newSamplingFreq=10;
                     
                     params.rs_Hz=newSamplingFreq;         % resample freq
                     params.rs_tol=1e-5;     % resample tolerance
