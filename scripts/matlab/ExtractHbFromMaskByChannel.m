@@ -12,7 +12,7 @@ if(0)
     checkAlignment=0; %toggle on/off to view headvol and mask alignment for each subject
 end
 
-nPlotsPerFig = 6;
+nPlotsPerFig = 3;
 
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
@@ -219,7 +219,7 @@ for n=1:numSubjects
                     
                 end %while cluster
                 
-                if mod(ef-1,nPlotsPerFig) == 5
+                if mod(ef-1,nPlotsPerFig) == (nPlotsPerFig-1)
                     figName = strcat(sID,'_Run',int2str(r),'_Chrom',int2str(chrom),'_Figure',int2str(figct));
                     savefig(figName);
                 end
