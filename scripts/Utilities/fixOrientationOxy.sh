@@ -264,5 +264,8 @@ do
   
 done
 
+mv $subjectDir/headvol_2mm.nii $subjectDir/orig/headvol_2mm.nii
+
+3dresample -dxyz 2 2 2 -prefix $subjectDir/headvol_2mm.nii -input $subjectDir/headvol.nii
 
 exit
