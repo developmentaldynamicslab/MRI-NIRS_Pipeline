@@ -1,5 +1,49 @@
 #!/bin/bash
 
+flipRL=0
+flipAP=0
+flipSI=0
+
+# Parse Command line arguements
+while getopts “d:rpi” OPTION
+do
+  case $OPTION in
+    h)
+      echo "Usage: $0 -d subjectDir"
+      echo "   where"
+      echo "   -d Directory to fix orientation"
+      echo "   -r Flip R/L"
+      echo "   -p Flip A/P"
+      echo "   -i Flip S/I"
+      echo "   -h Display help message"
+      exit 1
+      ;;
+    d)
+      subjectDir=$OPTARG
+      ;;
+    r)
+      flipRL=1
+      ;;
+    p)
+      flipAP=1
+      ;;
+    i)
+      flipSI=1
+      ;;
+    ?)
+      echo "ERROR: Invalid option"
+      echo "Usage: $0 -s subjectDir"
+      echo "   where"
+      echo "   -d Directory to fix orientation"
+      echo "   -r Flip R/L"
+      echo "   -p Flip A/P"
+      echo "   -i Flip S/I"
+      echo "   -h Display help message"
+      exit 1
+      ;;
+     esac
+done
+
 echo "Local Subject Dir: $subjectDir"
  
 afniProg=`which 3dcalc`
