@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Local Subject Dir: $subjectDir"
+ 
 afniProg=`which 3dcalc`
 if [[ $afniProg == "" ]]; then
   echo "Error:  Unable to find the AFNI commands. Update your path and rerun the command."
