@@ -126,6 +126,17 @@ do
     --shrink-factors 8x4x2x1 \
     --smoothing-sigmas 3x2x1x0vox
   fi
+  
+  # Fix the Output for AFNI. ANTs puts things in the proper physical space but
+  # does not set the qform and sform codes for MNI or TALAIRACH space. This
+  # will fix this if the Atlas image is in MNI or TALAIRACH space
+  qform=`nifti_tool -disp_hdr -infiles $atlasFixedImage | grep qform_code | awk '{print $4}'`
+  sform=`nifti_tool -disp_hdr -infiles $atlasFixedImage | grep sform_code | awk '{print $4}'`
+  if [ $qform == 3 ] || [ $sform == 3 ]; then
+    3drefit -view tlrc -space TLRC ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas.nii.gz
+  elif [ $qform == 4 ] || [ $sform == 4 ]; then
+    3drefit -view tlrc -space MNI ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas.nii.gz
+  fi
 
   affineXfrm=`ls ${commonResultDir}/${fNIRSAtlasLabel}_T1_to_Atlas*Affine.mat`
   if [ "$affineXfrm" == "" ]; then
@@ -154,6 +165,12 @@ do
     -n Linear \
     -t $warpXfrm \
     -t $affineXfrm
+    
+    if [ $qform == 3 ] || [ $sform == 3 ]; then
+      3drefit -view tlrc -space TLRC ${resultImage}
+    elif [ $qform == 4 ] || [ $sform == 4 ]; then
+      3drefit -view tlrc -space MNI ${resultImage}
+    fi
 
     resultClipImage="${resultImage%.nii*}_ClipToBrain.nii.gz"
     if [ "${atlasHsegMask}" == "1" ]; then

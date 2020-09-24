@@ -82,18 +82,21 @@ do
   #echo "Subject Mask: $subjectBrainMask"
   #################################################################
 
-  #set these as input parameters...
-  let nch=13 #num channels - 1
+  #set as an input parameter
   let radiussquared=100
 
   cp $subjectDir'/viewer/Subject/headvol_2mm.nii' $clustDir/$i'_headvol2mm.nii'
   cp $subjectDir'/viewer/Subject/AdotVol_NeuroDOT2mm.nii' $clustDir/$i'_AdotVol_NeuroDOT2mm.nii'
+  
+  # Get number of channels from the Adot file and subtract 1 since index starts at 0
+  nch=`nifti_tool -disp_hdr -infiles $clustDir/${i}_AdotVol_NeuroDOT2mm.nii | grep dim | grep -v dim_info | grep -v pixdim | awk '{print $8}'`
+  let nch--
 
   3dcalc -a $clustDir/$i'_headvol2mm.nii' \
       -prefix $clustDir/$i'_headvol2mm_BrainOnly.nii' \
       -expr 'step(a-1)'
 
-  for j in {0..13}
+  for j in `seq 0 $nch`
   do
     3dcalc -a $clustDir/$i'_AdotVol_NeuroDOT2mm.nii'[$j] -b $clustDir/$i'_headvol2mm_BrainOnly.nii' -expr 'a*b' -prefix $clustDir/$i'_Temp.nii'
     3dExtrema -maxima -nbest 1 -quiet -volume $clustDir/$i'_Temp.nii' >> $clustDir/$i'_Mvalues.1D'
@@ -104,7 +107,7 @@ do
   MY=(`cat $clustDir/$i'_Mvalues.1D' | awk '{print $4}'`)
   MZ=(`cat $clustDir/$i'_Mvalues.1D' | awk '{print $5}'`)
 
-  for j in {0..13}
+  for j in `seq 0 $nch`
   do
     let k=j+1
     basename=$clustDir/$i'_clust_order_Peaks'$k'.nii'
@@ -120,7 +123,7 @@ do
   let index+=1
 done
 
-for j in {0..13}
+for j in `seq 0 $nch`
 do
   let k=j+1
   basename2=$clustDir/'clust_order_Peaks'$k'_BrainOnly.nii'
