@@ -1,4 +1,4 @@
-function ExtractHbFromMaskByChannel(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,HRFDuration,MaxClustValue,checkAlignment)
+function ExtractHbFromMaskByChannel(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,HRFDuration,MaxClustValue,checkAlignment,nPlotsPerFig)
 
 %to run interactively for debugging...
 if(0)
@@ -11,8 +11,6 @@ if(0)
     MaxClustValue=1;
     checkAlignment=0; %toggle on/off to view headvol and mask alignment for each subject
 end
-
-nPlotsPerFig = 3;
 
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
@@ -69,17 +67,17 @@ subjects=subjectList{1,1};
 %changed to dim1 by JPS
 numSubjects=size(subjects,1);
 
-OutFileN='Correlations.csv';
-if (exist(OutFileN,'file') == 0)
-    outfile = fopen(OutFileN,'w');
-    fprintf(outfile,'Subject,Run,Chromophore,Channel,Cluster,Corr\n');
-else
-    outfile = fopen(OutFileN,'a');
-end
-
 for n=1:numSubjects
     
     sID=subjects{n}
+
+    OutFileN=strcat(subjectList{16}{n},'/CorrelationsByChannel.csv');
+    if (exist(OutFileN,'file') == 0)
+        outfile = fopen(OutFileN,'w');
+        fprintf(outfile,'Subject,Run,Chromophore,Channel,Cluster,Corr\n');
+    else
+        outfile = fopen(OutFileN,'a');
+    end
     
     %process data for each run per subject -- do this as outer loop since
     %it takes forever to load the ND files...
@@ -220,7 +218,7 @@ for n=1:numSubjects
                 end %while cluster
                 
                 if mod(ef-1,nPlotsPerFig) == (nPlotsPerFig-1)
-                    figName = strcat(sID,'_Run',int2str(r),'_Chrom',int2str(chrom),'_Figure',int2str(figct));
+                    figName = strcat(subjectList{16}{n},'/',sID,'_Run',int2str(r),'_Chrom',int2str(chrom),'_Figure',int2str(figct));
                     savefig(figName);
                 end
                 

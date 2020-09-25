@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # VAM - Testing Paths
-export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin:/opt/afni
+#export PATH=${PATH}:/Users/magnottav/development/BRAINS/Oct2017/BRAINSTools-Build/bin:/opt/afni
 
 # Setup Evironmental Variables
-scriptPath=`dirname $0`
-scriptPath=$scriptPath/matlab
+#scriptPath=`dirname $0`
+#scriptPath=$scriptPath/matlab
 
 if [ $# != 1 ]; then
   echo "ERROR: Inavlid usage."
@@ -89,8 +89,12 @@ do
   cp $subjectDir'/viewer/Subject/AdotVol_NeuroDOT2mm.nii' $clustDir/$i'_AdotVol_NeuroDOT2mm.nii'
   
   # Get number of channels from the Adot file and subtract 1 since index starts at 0
-  nch=`nifti_tool -disp_hdr -infiles $clustDir/${i}_AdotVol_NeuroDOT2mm.nii | grep dim | grep -v dim_info | grep -v pixdim | awk '{print $8}'`
-  let nch--
+  ncht=`nifti_tool -disp_hdr -infiles $clustDir/${i}_AdotVol_NeuroDOT2mm.nii | grep dim | grep -v dim_info | grep -v pixdim | awk '{print $8}'`
+  let ncht--
+
+echo $ncht
+let nch=ncht/2
+echo $nch
 
   3dcalc -a $clustDir/$i'_headvol2mm.nii' \
       -prefix $clustDir/$i'_headvol2mm_BrainOnly.nii' \
@@ -112,7 +116,7 @@ do
     let k=j+1
     basename=$clustDir/$i'_clust_order_Peaks'$k'.nii'
     basename2=$clustDir/$i'_clust_order_Peaks'$k'_BrainOnly.nii'
-    3dcalc -a $clustDir/$i'_headvol2mm.nii' \
+    3dcalc -a $clustDir/$i'_headvol2mm_BrainOnly.nii' \
       -prefix $basename \
       -expr 'step('$radiussquared'-(x-'${MX[$j]}')*(x-'${MX[$j]}')-(y-'${MY[$j]}')*(y-'${MY[$j]}')-(z-'${MZ[$j]}')*(z-'${MZ[$j]}'))'
 
