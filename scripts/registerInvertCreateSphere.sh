@@ -116,7 +116,7 @@ echo $nch
     let k=j+1
     basename=$clustDir/$i'_clust_order_Peaks'$k'.nii'
     basename2=$clustDir/$i'_clust_order_Peaks'$k'_BrainOnly.nii'
-    3dcalc -a $clustDir/$i'_headvol2mm_BrainOnly.nii' \
+    3dcalc -RAI -a $clustDir/$i'_headvol2mm_BrainOnly.nii' \
       -prefix $basename \
       -expr 'step('$radiussquared'-(x-'${MX[$j]}')*(x-'${MX[$j]}')-(y-'${MY[$j]}')*(y-'${MY[$j]}')-(z-'${MZ[$j]}')*(z-'${MZ[$j]}'))'
 
