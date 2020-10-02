@@ -1,4 +1,4 @@
-function ExtractHbFromMaskByChannel(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,HRFDuration,MaxClustValue,checkAlignment,nPlotsPerFig)
+function ExtractHbFromMaskByChannel(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,HRFDuration,MaxClustValue,checkAlignment,GeneratePlots,nPlotsPerFig)
 
 %to run interactively for debugging...
 if(0)
@@ -70,7 +70,7 @@ numSubjects=size(subjects,1);
 for n=1:numSubjects
     
     sID=subjects{n}
-
+    
     OutFileN=strcat(subjectList{16}{n},'/CorrelationsByChannel.csv');
     if (exist(OutFileN,'file') == 0)
         outfile = fopen(OutFileN,'w');
@@ -187,29 +187,35 @@ for n=1:numSubjects
                     params.rs_tol=1e-5;     % resample tolerance
                     [lmdata, info] = resample_tts(lmdata, info, params.rs_Hz, params.rs_tol);
                     
-                    if mod(ef-1,nPlotsPerFig) == 0
-                        figure;
-                        figct=figct+1;
+                    if GeneratePlots
+                        if mod(ef-1,nPlotsPerFig) == 0
+                            figure;
+                            figct=figct+1;
+                        end
+                        subplot(nPlotsPerFig,1,mod(ef-1,nPlotsPerFig)+1);
+                        plot(lmdata(effCh,:),'k');
+                        hold on;
+                        if chrom == 1
+                            plot(HbO_TimeMAvg,'r');
+                        else
+                            plot(HbR_TimeMAvg,'r');
+                        end
+                        xlabel(strcat('Channel ',int2str(effCh)));
+                        hold off;
+                        
+                        if chrom == 1
+                            title('HbO');
+                        else
+                            title('HbR');
+                        end
                     end
-                    subplot(nPlotsPerFig,1,mod(ef-1,nPlotsPerFig)+1);
-                    plot(lmdata(effCh,:),'k');
-                    hold on;
+                    
                     if chrom == 1
-                        plot(HbO_TimeMAvg,'r');
                         CData(r,chrom,ef,cl) = corr(squeeze(lmdata(effCh,:))',HbO_TimeMAvg');
                         fprintf(outfile,'%s,%d,%s,%d,%d,%8.6f\n',sID,r,'HbO',effCh,cl,CData(r,chrom,ef,cl));
                     else
-                        plot(HbR_TimeMAvg,'r');
                         CData(r,chrom,ef,cl) = corr(squeeze(lmdata(effCh,:))',HbR_TimeMAvg');
                         fprintf(outfile,'%s,%d,%s,%d,%d,%8.6f\n',sID,r,'HbR',effCh,cl,CData(r,chrom,ef,cl));
-                    end
-                    xlabel(strcat('Channel ',int2str(effCh)));
-                    hold off;
-
-                    if chrom == 1
-                        title('HbO');
-                    else
-                        title('HbR');
                     end
                     
                     cl=cl+1;
@@ -217,7 +223,7 @@ for n=1:numSubjects
                     
                 end %while cluster
                 
-                if mod(ef-1,nPlotsPerFig) == (nPlotsPerFig-1)
+                if GeneratePlots && mod(ef-1,nPlotsPerFig) == (nPlotsPerFig-1)
                     figName = strcat(subjectList{16}{n},'/',sID,'_Run',int2str(r),'_Chrom',int2str(chrom),'_Figure',int2str(figct));
                     savefig(figName);
                 end
