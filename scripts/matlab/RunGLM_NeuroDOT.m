@@ -8,7 +8,7 @@
 %newSamplingFreq = the sampling frequency used for output files from the
 %ImageRecon processing.
 
-function RunGLM_NeuroDOT(subjectListFile,regressorList,rDuration,rName,newSamplingFreq)
+function RunGLM_NeuroDOT(subjectListFile,regressorList,rDuration,rName,newSamplingFreq,hrfName)
 
 %run interactively
 if 0
@@ -79,7 +79,11 @@ else
     
     
     %% Load HRF from file
-    load('hrf_DOT3.mat'); % HbO hrf
+    if (isempty(hrfName))
+        load('hrf_DOT3.mat'); % HbO hrf
+    else
+        load(hrfName)
+    end
     infoHRF.system.framerate=1;
     hrf=resample_tts(hrf,infoHRF,newSamplingFreq,1e-3,1);
     hrfR = hrf;
