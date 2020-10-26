@@ -161,10 +161,6 @@ for n=1:numSubjects
                         if (BaselineDuration > 0)
                             %compute mean over first Xs for each voxel
                             BA_baseline = nanmean(BA_out(:,1:dtbase),2);
-
-                            %option 2 -- same??
-                            %BA_baseline2 = nanmean(nanmean(BA_out(:,1:dtbase),2));
-                            %MDataB2(ef,cl,reg,1,r,:) = nanmean(BA_out) - BA_baseline2; % your mean vector in micromolar;
                         else
                             BA_baseline = zeros(size(BA_out,1),1);
                         end
@@ -181,7 +177,15 @@ for n=1:numSubjects
                         
                         %extract block average time series for HbR...
                         [BA_out,BSTD_out] = BlockAverage(HbR_cluster_only, info.paradigm.synchpts(stims), dt);
-                        MData(ef,cl,reg,2,r,:) = nanmean(BA_out); % your mean vector in micromolar;
+
+                        if (BaselineDuration > 0)
+                            %compute mean over first Xs for each voxel
+                            BA_baseline = nanmean(BA_out(:,1:dtbase),2);
+                        else
+                            BA_baseline = zeros(size(BA_out,1),1);
+                        end
+                        
+                        MData(ef,cl,reg,2,r,:) = nanmean(BA_out - BA_baseline); % your mean vector in micromolar;
                         SData(ef,cl,reg,2,r,:) = nansum(BA_out); % your summed vector in micromolar;
                         SEData(ef,cl,reg,2,r,:) = (nanmean(BSTD_out))/sqrt(size(stims,1)); %SE
  
