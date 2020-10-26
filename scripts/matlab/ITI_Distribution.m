@@ -1,39 +1,27 @@
 %oldSamplingFreq = sampling frequency of NIRS data in Hz (included here since not
 %contained in the TechEN header...)
 
-%newSamplingFreq --> specify a new sampling freq (e.g., if you want to
-%downsample). Otherwise, oldSamplingFreq and newSamplingFreq should match.
-%Specify this in Hz.
-
-%padding --> only reconstruct data from first to last stim mark to keep
-%file sizes as small as possible. Padding gives you a bit of extra data
-%before the first stim and after the last stim in case you want a baseline.
-%Specify this in seconds.
-
-%baseSDmm --> the 'base' separation between sources and detectors in mm.
-%Not currently used in this code, but a parameter one can use in NeuroDOT
-%so setting it explicitly here.
-
-%FFRproportion --> threshold the spectroscopy results by normalizing the
-%flat field reconstruction by the max(ffr) and then take any normalized
-%value > FFRproportion (e.g., anything > 5%)
-
-%usePrahl --> use extinction coefficients from Scott Prahl. If this flag is
-%set to 0, we are assuming the desired coeffs are in SD.extCoef in the
-%.nirs file and in (1/cm)/(moles/liter) units. Note that these values are
-%converted to millimolar in the code.
-
-function ITI_Distribution(subjectListFile,oldSamplingFreq)
+function ITI_Distribution(subjectListFile,regressorList,rName,oldSamplingFreq)
 
 %run interactively
 if 0
-    subjectListFile = 'Y2_finalComboSubjListGroup_1Subj.prn';
+    subjectListFile = 'Y1_finalComboSubjListGroup.prn';
+    regressorList = [1,2,3];
+    rName = 'Y1';
     oldSamplingFreq = 25;
+end
+
+OutFileN = [rName '_ITI_Distribution.csv'];
+if (exist(OutFileN,'file') == 0)
+    fileIDlog = fopen(OutFileN,'w');
+    fprintf(fileIDlog,'AnalysisLabel,Subject,Run,ITI\n');
+else
+    fileIDlog = fopen(OutFileN,'a');
 end
 
 fileID = fopen(subjectListFile,'r');
 if fileID < 0
-    fprintf(fileIDlog,'Failed to open the subjectListFile for reading\n');
+    fprintf('Failed to open the subjectListFile for reading\n');
 else
     
     %VAM - Update to support updates to the driver file
@@ -89,9 +77,7 @@ else
     for n=1:numSubjects
         
         sID=subjects{n}
-        fprintf(fileIDlog,'Processing Subject %s\n',sID);
-        
-        
+                
         inputFileStr=strcat(subjectList{4}{n}, '/', subjects{n}, '*.nirs');
         files=dir(inputFileStr);
         
@@ -102,7 +88,7 @@ else
         numRuns=size(filenames,2);
         
         if numRuns == 0
-            fprintf(fileIDlog,'No NIRS runs for Subject %s\n',sID);
+            fprintf('No NIRS runs for Subject %s\n',sID);
         end
         
         for r=1:numRuns
@@ -116,23 +102,25 @@ else
             [i,j]=find(procResult.s == 1);
             
             if isempty(i)
-                fprintf(fileIDlog,'No stims in NIRS file for run %d for Subject %s\n',r,sID);
+                fprintf('No stims in NIRS file for run %d for Subject %s\n',r,sID);
             else
-                
-                ITI_Dist
-                
-                startframe = min(i) - (info.system.framerate*paddingStart);
-                if (startframe < 1)
-                    startframe = 1;
+            
+                k = find(j == regressorList(1));
+                for tmp = 2:size(regressorList,2)
+                    tmp2 = find(j == regressorList(tmp));
+                    if ~isempty(k) && ~isempty(tmp2)
+                        k = [k(:,1)' tmp2(:,1)']';
+                    else
+                        if ~isempty(tmp2)
+                            k = [tmp2(:,1)']';
+                        end
+                    end
                 end
-                endframe = max(i) + (info.system.framerate*paddingEnd);
-                if (endframe > size(procResult.s,1))
-                    endframe = size(procResult.s,1);
-                end
-                goodtime = endframe - startframe + 1;
-                new_s = zeros(goodtime,size(procResult.s,2));
-                for a=1:size(i,1)
-                    new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
+                
+                stims = sort(i(k));
+                ITIs = diff(stims)./oldSamplingFreq;
+                for tmp3=1:size(ITIs,1)
+                    fprintf(fileIDlog,'%s,%s,%d,%.2f\n',rName,char(subjects{n}),r,ITIs(tmp3));
                 end
                 
             end %no stims
