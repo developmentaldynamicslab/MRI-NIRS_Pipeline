@@ -13,7 +13,7 @@ mkdir Infants_cPL_gesConHb3/0.01/${region}/ROIstats/
 for names in $subjlist
 do
 
-3dROIstats -mask Infants_cPL_gesConHb3/0.01/${region}/clust_order_${region}_l1_01.nii Infants_cPL_gesConHb3/Concat_4mo_${names}.nii'[0,1,2,3,4,5]' > \
+3dROIstats -nzmean -mask Infants_cPL_gesConHb3/0.01/${region}/clust_order_${region}_l1_01.nii Infants_cPL_gesConHb3/Concat_4mo_${names}.nii'[0,1,2,3,4,5]' > \
 Infants_cPL_gesConHb3/0.01/${region}/ROIstats/${region}_4mo_${names}.1D
 
 done
@@ -30,7 +30,7 @@ mkdir Infants_cPL_gesConHb3/0.01/${region}/ROIstats/
 for names in $subjlist
 do
 
-3dROIstats -mask Infants_cPL_gesConHb3/0.01/${region}/clust_order_${region}_l1_01.nii Infants_cPL_gesConHb3/Concat_1yo_${names}.nii'[0,1,2,3,4,5]' > \
+3dROIstats -nzmean -mask Infants_cPL_gesConHb3/0.01/${region}/clust_order_${region}_l1_01.nii Infants_cPL_gesConHb3/Concat_1yo_${names}.nii'[0,1,2,3,4,5]' > \
 Infants_cPL_gesConHb3/0.01/${region}/ROIstats/${region}_1yo_${names}.1D
 
 done
@@ -47,7 +47,7 @@ mkdir Infants_cPL_gesConHb3/0.01/${region}/ROIstats/
 for names in $subjlist
 do
 
-3dROIstats -mask Infants_cPL_gesConHb3/0.01/${region}/clust_order_${region}_l1_01.nii Infants_cPL_gesConHb3/Concat_2yo_${names}.nii'[0,1,2,3,4,5]' > \
+3dROIstats -nzmean -mask Infants_cPL_gesConHb3/0.01/${region}/clust_order_${region}_l1_01.nii Infants_cPL_gesConHb3/Concat_2yo_${names}.nii'[0,1,2,3,4,5]' > \
 Infants_cPL_gesConHb3/0.01/${region}/ROIstats/${region}_2yo_${names}.1D
 
 done
