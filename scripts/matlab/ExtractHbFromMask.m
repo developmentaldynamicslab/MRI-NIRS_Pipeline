@@ -97,8 +97,8 @@ for n=1:numSubjects
     
     numEff=size(filenamesEff,2);
     
-    dtbase=BaselineDuration*newSamplingFreq;
-    dt=HRFDuration*newSamplingFreq;
+    dtbase=round(BaselineDuration*newSamplingFreq);
+    dt=round(HRFDuration*newSamplingFreq);
     NClust = zeros(1,numEff); %stores number of clusters for each effect
     %note that the 2 index = HbO and HbR
     NData = zeros(numEff,MaxClustValue,numRegressors,numRuns); %count of stims for weighting
