@@ -150,7 +150,7 @@ for n=1:numSubjects
                 %compute either weighted mean over runs (based on stims per run)
                 for reg=1:numRegressors
                     
-                    stims = find(info.paradigm.synchtype == regressorListND(reg));
+                    stims = find(info.paradigm.synchtype == regressorList(reg));
                     NData(ef,cl,reg,r) = size(stims,1);
 
                     if size(stims,1) > 0
