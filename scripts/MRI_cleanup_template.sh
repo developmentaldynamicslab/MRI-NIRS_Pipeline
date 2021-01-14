@@ -17,6 +17,6 @@ do
   #Then segment using vinces new script (April 28 2019) and should align to ACPC
   mkdir -p /Volumes/PegasusDDLab/IndiaY2Seg/${subj}/
 
-  bash autoSegment20190428.sh -t /Volumes/PegasusDDLab/India_other_rounds/india_highRes/${subj}_neurologicalHighRes.nii.gz -o /Volumes/PegasusDDLab/IndiaY2Seg/${subj}/ -s 0.5 -c 3 -b -m
+  bash autoSegment.sh -t /Volumes/PegasusDDLab/India_other_rounds/india_highRes/${subj}_neurologicalHighRes.nii.gz -o /Volumes/PegasusDDLab/IndiaY2Seg/${subj}/ -s 0.5 -c 3 -b -m
 
 done
