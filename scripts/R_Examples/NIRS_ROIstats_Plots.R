@@ -55,6 +55,10 @@ NIRSData2_30 <- NIRSData2 %>%
   ) %>%
   ungroup() 
 
+temp <- subset(NIRSData2_30, Effect == '30SESEduxGenderxSSxHb')
+unique(temp$Cluster) #gives total -- if you used nzmean option, remember that you'll
+#have double the number of clusters; odd clusters = mean, even clusters = nzmean
+
 subset(NIRSData2_30, Cluster == '1' & Effect == '30SESEduxGenderxSSxHb') %>%
   mutate(SS = case_when(Cond == '1' ~ 'low',
                         Cond == '2' ~ 'med',
