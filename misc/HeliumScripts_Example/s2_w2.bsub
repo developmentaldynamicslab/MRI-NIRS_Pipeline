@@ -1,0 +1,10 @@
+##!/bin/bash
+#BSUB -q long-eth
+#BSUB -J Neuro_job
+##BSUB -oo Neuro-%J.out
+##BSUB -eo Neuro-%J.err
+
+ . /etc/profile
+
+
+/gpfs/home/amz15eku/homer2_112018/PACKAGES/tMCimg/bin/Linux/tMCimg /gpfs/home/amz15eku/142w2/fw/fw2.s2
