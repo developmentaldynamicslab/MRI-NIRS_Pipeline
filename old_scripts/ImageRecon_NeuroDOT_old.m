@@ -21,9 +21,7 @@
 %usePrahl --> use extinction coefficients from Scott Prahl. If this flag is
 %set to 0, we are assuming the desired coeffs are in SD.extCoef in the
 %.nirs file and in (1/cm)/(moles/liter) units. Note that these values are
-%converted to millimolar in the code. Note also that this is the default
-%option if using .snirf files (as there is no option to include this in the
-%SD.extCoef structure).
+%converted to millimolar in the code.
 
 function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion,usePrahl,GSR)
 
@@ -128,8 +126,7 @@ else
             params.lambda_2=0.1; %range between 0.2-0.01--pushing reconstruction into the volume
             params.gsigma=3; % standard deviation of Gaussian smoothing kernel in mm
             
-            [filepath,name,extNIRS] = fileparts(subjectList{2}{n});           
-            inputFileStr=strcat(subjectList{4}{n}, '/', subjects{n}, strcat('*',extNIRS));
+            inputFileStr=strcat(subjectList{4}{n}, '/', subjects{n}, '*.nirs');
             files=dir(inputFileStr);
             
             foldernames = {files.folder};
@@ -145,58 +142,10 @@ else
             for r=1:numRuns
                 
                 %Get preprocessed NIRS file into NeuroDOT format
-                [filepath,name,ext] = fileparts(filenames{r});
-                if strcmp(ext,'.nirs')
-                    %if .nirs file
-                    load(filenames{r},'-mat');
-                    
-                    nLambda = size(SD.Lambda,2);
-                    dLambda = SD.Lambda; %[690,830];
-                    dextCoef = SD.extCoef; %2x2 matrix
-                    smatrix = procResult.s; %time x regressors
-                    timepts = size(smatrix,1); %time
-                    nregressors = size(smatrix,2); %regressors
-                    doddata = procResult.dod; %time x ch
-                    meas=size(SD.MeasList,1); %length ch*WL
-                    sourcelist = SD.MeasList(:,1); %source list ch*WL
-                    detectorlist = SD.MeasList(:,2); %det list ch*WL
-                    wavelengthlist = SD.MeasList(:,4); %WL list ch*WL
-                    includedCh = procResult.SD.MeasListAct; %1 = included ch*WL
-
-                elseif strcmp(ext,'.snirf')
-                    %if .snirf file
-                    snirfdata = ReadSnirf(filenames{r});
-                    load(strcat(filepath,'/',name,'.mat'));
-                     
-                    nLambda = size(snirfdata.probe.wavelengths,1);
-                    dLambda = snirfdata.probe.wavelengths'; %[690,830];
-                    %dextCoef -- not in snirf so use defaulting to Prahl
-                    %smatrix -- re-mapped to ND structure below
-                    timepts = size(snirfdata.data.time,1); %time
-                    nregressors = size(snirfdata.stim,2); %regressors
-                    doddata = output.dod.dataTimeSeries;                   
-                    meas = size(snirfdata.data.measurementList,2);
-                    for tmp=1:meas
-                        sourcelist(tmp,1) = snirfdata.data.measurementList(1,tmp).sourceIndex;
-                    end
-                    for tmp=1:meas
-                        detectorlist(tmp,1) = snirfdata.data.measurementList(1,tmp).detectorIndex;
-                    end
-                    for tmp=1:meas
-                        wavelengthlist(tmp,1) = snirfdata.data.measurementList(1,tmp).wavelengthIndex;
-                    end
-                    for tmp=1:meas
-                        if ~isfield(output.misc,'mlActAuto')
-                            includedCh(tmp,1) = 1;
-                        else
-                            includedCh(tmp,1) = output.misc.mlActAuto(tmp,1);
-                        end
-                    end
-
-                end                
+                load(filenames{r}, '-mat');
                 
                 %load Prahl extinction coeffs and write to .nirs file
-                if usePrahl | strcmp(ext,'.snirf')
+                if usePrahl
                     %Prahl mat file has an 'info' structure that is
                     %overwriting my info from the light model. Prevent this
                     %from happening...
@@ -205,79 +154,47 @@ else
                     info = infoSafe;
                     
                     %step through each wavelength
-                    ExtCoeff = zeros(nLambda,2); %second dim is HbO, HbR
-                    for j = 1:nLambda
-                        ExtCoeff(j,:) = prahlEC(ismember(prahlEC(:,1),dLambda(j)),2:3).*[2.303,2.303]./1000; %divide by 1000 to move to 1/millimolar
+                    ExtCoeff = zeros(size(SD.Lambda,2),2); %second dim is HbO, HbR
+                    for j = 1:size(SD.Lambda,2)
+                        ExtCoeff(j,:) = prahlEC(ismember(prahlEC(:,1),SD.Lambda(j)),2:3).*[2.303,2.303]./1000; %divide by 1000 to move to 1/millimolar
                     end
-                    dextCoef = ExtCoeff.*1000; %write output in 1/molar
-                    if strcmp(ext,'.nirs')
-                        save(char(filenames{r}),'aux','d','dStd','ml','procInput','procResult','s','SD','systemInfo','t','tdml','tIncMan','userdata','-mat');
-                    end
+                    SD.extCoef = ExtCoeff.*1000; %write output in 1/molar
+                    save(char(filenames{r}),'aux','d','dStd','ml','procInput','procResult','s','SD','systemInfo','t','tdml','tIncMan','userdata','-mat');
                 end
-                dextCoef = dextCoef./1000; %assuming input coeffs are in 1/molar; convert to 1/millimolar
+                SD.extCoef = SD.extCoef./1000; %assuming input coeffs are in 1/molar; convert to 1/millimolar
                 
                 %find first and last event in s matrix -- this defines the window
                 %of data we want to reconstruct...minus Xs padding.
                 info.system.framerate=oldSamplingFreq;
+                [i,j]=find(procResult.s == 1);
                 
-                NoStims = 0;
-                if strcmp(ext,'.nirs')
-                    [i,j]=find(smatrix == 1);
-                    if isempty(i)
-                        NoStims = 1;
-                    end
-                elseif strcmp(ext,'.snirf')
-                    if isempty(snirfdata.stim)   
-                        NoStims = 1;
-                    end
-                end
-                
-                if NoStims
+                if isempty(i)
                     fprintf(fileIDlog,'No stims in NIRS file for run %d for Subject %s\n',r,sID);
                 else
-                    
-                    if strcmp(ext,'.nirs')
-                        minstim = min(i);
-                        maxstim = max(i);
-                    elseif strcmp(ext,'.snirf')
-                        for tmp=1:nregressors
-                            minstims(1,tmp) = min(snirfdata.stim(1,tmp).data(:,1));
-                            maxstims(1,tmp) = max(snirfdata.stim(1,tmp).data(:,1));
-                        end
-                        mintime = min(minstims);
-                        minstim = find(snirfdata.data.time == mintime);
-                        maxtime = max(maxstims);
-                        maxstim = find(snirfdata.data.time == maxtime);
-                    end
-                    
-                    startframe = minstim - (info.system.framerate*paddingStart);
+                    startframe = min(i) - (info.system.framerate*paddingStart);
                     if (startframe < 1)
                         startframe = 1;
                     end
-                    endframe = maxstim + (info.system.framerate*paddingEnd);
-                    if (endframe > timepts)
-                        endframe = timepts;
+                    endframe = max(i) + (info.system.framerate*paddingEnd);
+                    if (endframe > size(procResult.s,1))
+                        endframe = size(procResult.s,1);
                     end
                     goodtime = endframe - startframe + 1;
-                    
-                    %%%update stim times, subtracting off startframe
-                    %%%for snirf, doing this below as easier; see events
-                    if strcmp(ext,'.nirs')
-                        new_s = zeros(goodtime,nregressors);
-                        for a=1:size(i,1)
-                            new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
-                        end
-                     end
+                    new_s = zeros(goodtime,size(procResult.s,2));
+                    for a=1:size(i,1)
+                        new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
+                    end
                     
                     %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
-                    data=doddata(startframe:endframe,:)';
+                    data=procResult.dod(startframe:endframe,:)';
+                    meas=size(SD.MeasList,1);
                     ch=meas/2;
                     %%%Can't find in .nirs file...grr. Hardcoding here.
-                    info.pairs=table;                    
-                    info.pairs.Src=sourcelist;
-                    info.pairs.Det=detectorlist;
-                    info.pairs.WL=wavelengthlist;                    
-                    info.pairs.lambda=cat(1,ones(ch,1).*dLambda(1), ones(ch,1).*dLambda(2));
+                    info.pairs=table;
+                    info.pairs.Src=SD.MeasList(:,1);
+                    info.pairs.Det=SD.MeasList(:,2);
+                    info.pairs.WL=SD.MeasList(:,4);
+                    info.pairs.lambda=cat(1,ones(ch,1).*SD.Lambda(1), ones(ch,1).*SD.Lambda(2));
                     info.pairs.NN=ones(meas,1);
                     info.pairs.Mod=repmat({'CW'},[meas,1]);
                     info.pairs.r2d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS; ARE THESE IN .NIRS FILE?
@@ -290,49 +207,32 @@ else
                     
                     %%update so pruning channels based on bad channels on either wavelength
                     for ct=1:ch
-                        if (includedCh(ct) == 0 | includedCh(ct+ch) == 0)
-                            includedCh(ct) = 0;
-                            includedCh(ct+ch) = 0;
+                        if (procResult.SD.MeasListAct(ct) == 0 | procResult.SD.MeasListAct(ct+ch) == 0)
+                            procResult.SD.MeasListAct(ct) = 0;
+                            procResult.SD.MeasListAct(ct+ch) = 0;
                         end
                     end
                     
-                    info.MEAS.GI=includedCh;
+                    info.MEAS.GI=procResult.SD.MeasListAct;
                     
                     %%if no data, move on...
-                    if sum(includedCh) == 0
+                    if sum(procResult.SD.MeasListAct) == 0
                         fprintf(fileIDlog,'All NIRS channels pruned for Subject %s Run %d\n',sID,r);
                     else
                         
-                        if strcmp(ext,'.nirs')
-                            %%%%read in regressors (s matrix in .nirs file)...
-                            info.paradigm.synchpts=[];
-                            info.paradigm.synchtype=[];
-                            for j=1:nregressors
-                                events=find(new_s(:,j));
-                                info.paradigm.synchpts=cat(1,info.paradigm.synchpts,events);
-                                info.paradigm.synchtype=cat(1,info.paradigm.synchtype,ones(length(events),1).*j);
-                            end
-                            [info.paradigm.synchpts,idx]=sort(info.paradigm.synchpts);
-                            info.paradigm.synchtype=info.paradigm.synchtype(idx);
-                        elseif strcmp(ext,'.snirf')
-                            %%%map .snirf stim structure to ND stims
-                            info.paradigm.synchpts=[];
-                            info.paradigm.synchtype=[];
-                            for j=1:nregressors
-                                clear('events');
-                                for tmp=1:size(snirfdata.stim(1,j).data(:,1),1)
-                                    %subtracting startframe here to trim
-                                    events(tmp) = find(snirfdata.data.time == snirfdata.stim(1,j).data(tmp,1)) - startframe;
-                                end
-                                events=events';
-                                info.paradigm.synchpts=cat(1,info.paradigm.synchpts,events);
-                                info.paradigm.synchtype=cat(1,info.paradigm.synchtype,ones(length(events),1).*j);
-                            end
-                            [info.paradigm.synchpts,idx]=sort(info.paradigm.synchpts);
-                            info.paradigm.synchtype=info.paradigm.synchtype(idx);
-                         end
+                        %%%%read in regressors (s matrix in .nirs file)...
+                        [Nt,Nsptype]=size(new_s);
+                        info.paradigm.synchpts=[];
+                        info.paradigm.synchtype=[];
+                        for j=1:Nsptype
+                            events=find(new_s(:,j));
+                            info.paradigm.synchpts=cat(1,info.paradigm.synchpts,events);
+                            info.paradigm.synchtype=cat(1,info.paradigm.synchtype,ones(length(events),1).*j);
+                        end
+                        [info.paradigm.synchpts,idx]=sort(info.paradigm.synchpts);
+                        info.paradigm.synchtype=info.paradigm.synchtype(idx);
                         
-                        for j=1:nregressors
+                        for j=1:Nsptype
                             info.paradigm.(['Pulse_',num2str(j+1)])=find(info.paradigm.synchtype==j);
                         end
                         
@@ -368,7 +268,7 @@ else
                         cortex_mu_a=zeros(Nvox,Nt,2);
                         
                         %%step through wavelengths...
-                        for j = 1:nLambda
+                        for j = 1:size(SD.Lambda,2)
                             keep = (info.pairs.WL == j) & info.MEAS.GI; %COULD ADD CUTOFF HERE BASED ON DISTANCE
                             disp('> Inverting A')
                             iA = Tikhonov_invert_Amat(A(keep, :), params.lambda_1, params.lambda_2); % Invert A-Matrix
@@ -392,7 +292,7 @@ else
                         end
                         
                         %% Spectroscopy
-                        E=dextCoef;
+                        E=SD.extCoef;
                         cortex_Hb = spectroscopy_img(cortex_mu_a, E);
                         
                         cortex_Hb = bsxfun(@times, cortex_Hb, maskffr);

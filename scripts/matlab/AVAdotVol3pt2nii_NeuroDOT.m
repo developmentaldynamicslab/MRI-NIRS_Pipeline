@@ -46,15 +46,21 @@ anatVox=load_vox( anatVoxFileName );
 
 % Read the nirs file to get the number of channels
 isOctave = exist('OCTAVE_VERSION') ~= 0;
-if (isOctave)
-  load(nirsFileName);
-else
-  load(nirsFileName,'-mat');
+
+[filepath,name,extNIRS] = fileparts(nirsFileName); 
+if strcmp(extNIRS,'.nirs')
+    %if .nirs file
+    if (isOctave)
+        load(nirsFileName);
+    else
+        load(nirsFileName,'-mat');
+    end
+    nMeas = size(SD.MeasList,1);
+elseif strcmp(extNIRS,'.snirf')
+    %if .snirf file
+    snirfdata = ReadSnirf(nirsFileName);
+    nMeas = size(snirfdata.data.measurementList,2);
 end
-%k = find(SD.MeasList(:,4)==1);
-%probe = SD.MeasList(k,:);
-%nMeas = size(probe,1);
-nMeas = size(SD.MeasList,1);
 
 % Read the 3pt file - convert to a 3D array - Write as Nifti
 fid = fopen(profileFileName,'r');
@@ -90,9 +96,17 @@ for i=[0:nMeas-1]
   nii.hdr.hist.quatern_d = 1.0;
 
   % Set the NIFTI FIlename based on source and detectors
-  sdpair=SD.MeasList(i+1,:);
-  source=sdpair(1);
-  detector=sdpair(2);
+  if strcmp(extNIRS,'.nirs')
+      %if .nirs file
+      sdpair=SD.MeasList(i+1,:);
+      source=sdpair(1);
+      detector=sdpair(2);
+  elseif strcmp(extNIRS,'.snirf')
+      %if .snirf file
+      source = snirfdata.data.measurementList(1,i+1).sourceIndex;
+      detector = snirfdata.data.measurementList(1,i+1).detectorIndex;
+  end
+  
   sourceStr=int2str(source);
   detectorStr=int2str(detector);
   channelStr=int2str(i+1);
