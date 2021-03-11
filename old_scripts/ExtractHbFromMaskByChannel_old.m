@@ -89,9 +89,8 @@ for n=1:numSubjects
     filenames = strcat(foldernames,'/',files);
     
     numRuns=size(filenames,2);
-
-    [filepath,name,extNIRS] = fileparts(subjectList{2}{n});
-    inputFileStrNIRS=strcat(subjectList{4}{n}, '/', subjects{n}, strcat('*',extNIRS));
+    
+    inputFileStrNIRS=strcat(subjectList{4}{n}, '/', subjects{n}, '*.nirs');
     filesNIRS=dir(inputFileStrNIRS);
     foldernamesNIRS = {filesNIRS.folder};
     filesNIRS = {filesNIRS.name};
@@ -117,24 +116,10 @@ for n=1:numSubjects
         
         %Load NeuroDOT image file: data are voxels x time
         load(NDFile,'-mat');
-
+        
         %Get preprocessed NIRS file into NeuroDOT format
-        [filepath,name,ext] = fileparts(filenamesNIRS{r});
-        if strcmp(ext,'.nirs')
-            %if .nirs file
-            load(filenamesNIRS{r},'-mat');  
-            smatrix = procResult.s; %time x regressors
-            timepts = size(smatrix,1); %time
-            nregressors = size(smatrix,2); %regressors
-        elseif strcmp(ext,'.snirf')
-            %if .snirf file
-            snirfdata = ReadSnirf(filenamesNIRS{r});
-            load(strcat(filepath,'/',name,'.mat'));
-            timepts = size(snirfdata.data.time,1); %time
-            nregressors = size(snirfdata.stim,2); %regressors
-            meas = size(snirfdata.data.measurementList,2);
-        end
-            
+        load(filenamesNIRS{r}, '-mat');
+        
         for chrom=1:2
             figct=0;
             for ef=1:numEff
@@ -178,41 +163,23 @@ for n=1:numSubjects
                     HbR_TimeMAvg = mean(HbR_cluster_only,1);
                     
                     info.system.framerate=oldSamplingFreq; %old frame rate
-                    
-                    if strcmp(ext,'.nirs')
-                        [i,j]=find(smatrix == 1);
-                        minstim = min(i);
-                        maxstim = max(i);
-                    elseif strcmp(ext,'.snirf')
-                        for tmp=1:nregressors
-                            minstims(1,tmp) = min(snirfdata.stim(1,tmp).data(:,1));
-                            maxstims(1,tmp) = max(snirfdata.stim(1,tmp).data(:,1));
-                        end
-                        mintime = min(minstims);
-                        minstim = find(snirfdata.data.time == mintime);
-                        maxtime = max(maxstims);
-                        maxstim = find(snirfdata.data.time == maxtime);
-                    end
-                    
-                    startframe = minstim - (info.system.framerate*paddingStart);
+                    [i,j]=find(procResult.s == 1);
+                    startframe = min(i) - (info.system.framerate*paddingStart);
                     if (startframe < 1)
                         startframe = 1;
                     end
-                    endframe = maxstim + (info.system.framerate*paddingEnd);
-                    if (endframe > timepts)
-                        endframe = timepts;
+                    endframe = max(i) + (info.system.framerate*paddingEnd);
+                    if (endframe > size(procResult.s,1))
+                        endframe = size(procResult.s,1);
                     end
                     goodtime = endframe - startframe + 1;
+                    new_s = zeros(goodtime,size(procResult.s,2));
+                    for a=1:size(i,1)
+                        new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
+                    end
                     
                     %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
-                    if strcmp(ext,'.nirs')
-                        data=squeeze(procResult.dc(startframe:endframe,chrom,:))'.*10^6;
-                    elseif strcmp(ext,'.snirf')
-                        ch=meas/2;
-                        startmeas=ch*(chrom-1)+1;
-                        endmeas=ch*chrom;
-                        data=squeeze(output.dc.dataTimeSeries(startframe:endframe,startmeas:endmeas))'.*10^6;
-                    end
+                    data=squeeze(procResult.dc(startframe:endframe,chrom,:))'.*10^6;
                     lmdata=data;
                     %% newSamplingFreq=10;
                     
