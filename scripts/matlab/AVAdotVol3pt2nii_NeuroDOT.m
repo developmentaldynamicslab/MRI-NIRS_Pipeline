@@ -111,11 +111,22 @@ for i=[0:nMeas-1]
   detectorStr=int2str(detector);
   channelStr=int2str(i+1);
   disp(channelStr)
-  if (i+1 < 10)
-    AdotNiftFileName=strcat(AdotNiftFileBase,'_C0',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+  
+  if (nMeas < 100)
+      if (i+1 < 10)
+          AdotNiftFileName=strcat(AdotNiftFileBase,'_C0',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+      else
+          AdotNiftFileName=strcat(AdotNiftFileBase,'_C',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+      end
   else
-    AdotNiftFileName=strcat(AdotNiftFileBase,'_C',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
-  end
+      if (i+1 < 10)
+          AdotNiftFileName=strcat(AdotNiftFileBase,'_C00',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+      elseif (i+1 < 100)
+          AdotNiftFileName=strcat(AdotNiftFileBase,'_C0',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+      else
+          AdotNiftFileName=strcat(AdotNiftFileBase,'_C',channelStr,'_S',sourceStr,'_D',detectorStr,'_temp.nii');
+      end
+  end      
 
   % Write out the NIFTI Image
   save_nii(nii, AdotNiftFileName);
