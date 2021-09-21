@@ -286,38 +286,3 @@ for n=1:numSubjects
 end %subjects
             
 
-%OLD NOTES...
-
-%plot the time traces along with the stim events for learned
-%and unlearned
-%             plot(HbO_TimeTrace)
-%             hold
-%             plot(HbR_TimeTrace,'r')
-%             %             stimsL = find(info.paradigm.synchtype == 1 | info.paradigm.synchtype == 4);
-%             %             stimsUL = find(info.paradigm.synchtype == 2 | info.paradigm.synchtype == 5);
-%             stimsL = find(info.paradigm.synchtype == 1);
-%             stimsUL = find(info.paradigm.synchtype == 2);
-%             for j=1:size(stimsL,1)
-%                 xline(info.paradigm.synchpts(stimsL(j),1),'g')
-%             end
-%             for j=1:size(stimsUL,1)
-%                 xline(info.paradigm.synchpts(stimsUL(j),1),'b')
-%             end
-%             hold off
-
-%output timeseries for each mask...
-%need to look at WTC code to create dummy .nirs file
-
-%what about opening the orig .nirs file, replacing channels
-%with new HbO and HbR data and then writing to new file. Then
-%WTC code should work as is...
-
-%info.paradigm.synchpts = timings
-%info.paradigm.synchtype = stim marks
-%so figure out which stims I need to write and then create a
-%new s matrix. then output s matrix and HbO and HbR time series
-%to a mock .nirs file that can be read by WTC code.
-%need to replicate the Child and Parent folders within
-%Coherence_Child? Or just child in this folder, and parent in
-%the other, then update paths in WTC.
-

@@ -89,8 +89,9 @@ for n=1:numSubjects
     filenames = strcat(foldernames,'/',files);
     
     numRuns=size(filenames,2);
-    
-    inputFileStrNIRS=strcat(subjectList{4}{n}, '/', subjects{n}, '*.nirs');
+
+    [filepath,name,extNIRS] = fileparts(subjectList{2}{n});
+    inputFileStrNIRS=strcat(subjectList{4}{n}, '/', subjects{n}, strcat('*',extNIRS));
     filesNIRS=dir(inputFileStrNIRS);
     foldernamesNIRS = {filesNIRS.folder};
     filesNIRS = {filesNIRS.name};
@@ -116,10 +117,24 @@ for n=1:numSubjects
         
         %Load NeuroDOT image file: data are voxels x time
         load(NDFile,'-mat');
-        
+
         %Get preprocessed NIRS file into NeuroDOT format
-        load(filenamesNIRS{r}, '-mat');
-        
+        [filepath,name,ext] = fileparts(filenamesNIRS{r});
+        if strcmp(ext,'.nirs')
+            %if .nirs file
+            load(filenamesNIRS{r},'-mat');  
+            smatrix = procResult.s; %time x regressors
+            timepts = size(smatrix,1); %time
+            nregressors = size(smatrix,2); %regressors
+        elseif strcmp(ext,'.snirf')
+            %if .snirf file
+            snirfdata = ReadSnirf(filenamesNIRS{r});
+            load(strcat(filepath,'/',name,'.mat'));
+            timepts = size(snirfdata.data.time,1); %time
+            nregressors = size(snirfdata.stim,2); %regressors
+            meas = size(snirfdata.data.measurementList,2);
+        end
+            
         for chrom=1:2
             figct=0;
             for ef=1:numEff
@@ -163,23 +178,41 @@ for n=1:numSubjects
                     HbR_TimeMAvg = mean(HbR_cluster_only,1);
                     
                     info.system.framerate=oldSamplingFreq; %old frame rate
-                    [i,j]=find(procResult.s == 1);
-                    startframe = min(i) - (info.system.framerate*paddingStart);
+                    
+                    if strcmp(ext,'.nirs')
+                        [i,j]=find(smatrix == 1);
+                        minstim = min(i);
+                        maxstim = max(i);
+                    elseif strcmp(ext,'.snirf')
+                        for tmp=1:nregressors
+                            minstims(1,tmp) = min(snirfdata.stim(1,tmp).data(:,1));
+                            maxstims(1,tmp) = max(snirfdata.stim(1,tmp).data(:,1));
+                        end
+                        mintime = min(minstims);
+                        minstim = find(snirfdata.data.time == mintime);
+                        maxtime = max(maxstims);
+                        maxstim = find(snirfdata.data.time == maxtime);
+                    end
+                    
+                    startframe = minstim - (info.system.framerate*paddingStart);
                     if (startframe < 1)
                         startframe = 1;
                     end
-                    endframe = max(i) + (info.system.framerate*paddingEnd);
-                    if (endframe > size(procResult.s,1))
-                        endframe = size(procResult.s,1);
+                    endframe = maxstim + (info.system.framerate*paddingEnd);
+                    if (endframe > timepts)
+                        endframe = timepts;
                     end
                     goodtime = endframe - startframe + 1;
-                    new_s = zeros(goodtime,size(procResult.s,2));
-                    for a=1:size(i,1)
-                        new_s((i(a,1) - startframe) + 1, j(a,1)) = 1;
-                    end
                     
                     %%%%% put .nirs data into NeuroDOT structure %%%%%%%%%%
-                    data=squeeze(procResult.dc(startframe:endframe,chrom,:))'.*10^6;
+                    if strcmp(ext,'.nirs')
+                        data=squeeze(procResult.dc(startframe:endframe,chrom,:))'.*10^6;
+                    elseif strcmp(ext,'.snirf')
+                        ch=meas/2;
+                        startmeas=ch*(chrom-1)+1;
+                        endmeas=ch*chrom;
+                        data=squeeze(output.dc.dataTimeSeries(startframe:endframe,startmeas:endmeas))'.*10^6;
+                    end
                     lmdata=data;
                     %% newSamplingFreq=10;
                     
@@ -235,39 +268,4 @@ end
 
 fclose(outfile);
 
-
-%OLD NOTES...
-
-%plot the time traces along with the stim events for learned
-%and unlearned
-%             plot(HbO_TimeTrace)
-%             hold
-%             plot(HbR_TimeTrace,'r')
-%             %             stimsL = find(info.paradigm.synchtype == 1 | info.paradigm.synchtype == 4);
-%             %             stimsUL = find(info.paradigm.synchtype == 2 | info.paradigm.synchtype == 5);
-%             stimsL = find(info.paradigm.synchtype == 1);
-%             stimsUL = find(info.paradigm.synchtype == 2);
-%             for j=1:size(stimsL,1)
-%                 xline(info.paradigm.synchpts(stimsL(j),1),'g')
-%             end
-%             for j=1:size(stimsUL,1)
-%                 xline(info.paradigm.synchpts(stimsUL(j),1),'b')
-%             end
-%             hold off
-
-%output timeseries for each mask...
-%need to look at WTC code to create dummy .nirs file
-
-%what about opening the orig .nirs file, replacing channels
-%with new HbO and HbR data and then writing to new file. Then
-%WTC code should work as is...
-
-%info.paradigm.synchpts = timings
-%info.paradigm.synchtype = stim marks
-%so figure out which stims I need to write and then create a
-%new s matrix. then output s matrix and HbO and HbR time series
-%to a mock .nirs file that can be read by WTC code.
-%need to replicate the Child and Parent folders within
-%Coherence_Child? Or just child in this folder, and parent in
-%the other, then update paths in WTC.
 
