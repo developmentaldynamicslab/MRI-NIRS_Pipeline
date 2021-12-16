@@ -8,6 +8,9 @@
 %newSamplingFreq = the sampling frequency used for output files from the
 %ImageRecon processing.
 
+%hrfName = name of file with hrf data if NOT using standard; use '' if
+%standard option
+
 function RunGLM_NeuroDOT(subjectListFile,regressorList,rDuration,rName,newSamplingFreq,hrfName)
 
 %run interactively

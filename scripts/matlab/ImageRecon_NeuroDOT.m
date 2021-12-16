@@ -25,11 +25,20 @@
 %option if using .snirf files (as there is no option to include this in the
 %SD.extCoef structure).
 
-function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion,usePrahl,GSR)
+%GSR --> use global signal regression? 1 = yes, 0 = no
+
+%SSR --> use short-signal regression? 1 = yes; this option takes priority 
+%over GSR; if there are no good SSR channels, GSR is performed if GSR = 1
+
+%ssrCh --> vector of channels specifying short source-detector pairs.
+%Corresponds to channel measurement list. Will be propagated over
+%wavelengths in the code. Example: [5, 23, 34, 52]; if no SSR, use []
+
+function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,paddingStart,paddingEnd,baseSDmm,FFRproportion,usePrahl,GSR, SSR, ssrCh)
 
 %run interactively
 if 0
-    subjectListFile = 'Y2_finalComboSubjListGroup_1Subj.prn';
+    subjectListFile = 'Y1_NIHVWM_SubjListGroup6mo.prn';
     oldSamplingFreq = 25;
     newSamplingFreq = 10;
     paddingStart = 20;
@@ -38,6 +47,8 @@ if 0
     FFRproportion = 0.05;
     usePrahl = 1;
     GSR = 1; %use global signal regression
+    SSR = 0; %use short-source regression
+    ssrCh = []; %[5, 23, 34, 52]
 end
 
 %flag to view the FFR data for each subject/run if desired
@@ -146,6 +157,8 @@ else
                 
                 %Get preprocessed NIRS file into NeuroDOT format
                 [filepath,name,ext] = fileparts(filenames{r});
+                runNumber = str2num(name((size(name,2)-1):size(name,2)));
+                
                 if strcmp(ext,'.nirs')
                     %if .nirs file
                     load(filenames{r},'-mat');
@@ -161,8 +174,9 @@ else
                     sourcelist = SD.MeasList(:,1); %source list ch*WL
                     detectorlist = SD.MeasList(:,2); %det list ch*WL
                     wavelengthlist = SD.MeasList(:,4); %WL list ch*WL
-                    includedCh = procResult.SD.MeasListAct; %1 = included ch*WL
-
+                    %includedCh = procResult.SD.MeasListAct; %1 = included ch*WL
+                    includedCh = SD.MeasListAct; %1 = included ch*WL
+                    
                 elseif strcmp(ext,'.snirf')
                     %if .snirf file
                     snirfdata = ReadSnirf(filenames{r});
@@ -233,7 +247,7 @@ else
                 end
                 
                 if NoStims
-                    fprintf(fileIDlog,'No stims in NIRS file for run %d for Subject %s\n',r,sID);
+                    fprintf(fileIDlog,'No stims in NIRS file for run %d for Subject %s\n',runNumber,sID);
                 else
                     
                     if strcmp(ext,'.nirs')
@@ -283,7 +297,7 @@ else
                     info.pairs.r2d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS; ARE THESE IN .NIRS FILE?
                     info.pairs.r3d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
                     
-                    if (r == 1)
+                    if (runNumber == 1)
                         imageFileND=strcat(subjectList{5}{n},'/Adot_',sID,'_nd2_2mm');
                         save(imageFileND,'A','info','-v7.3')
                     end
@@ -300,7 +314,7 @@ else
                     
                     %%if no data, move on...
                     if sum(includedCh) == 0
-                        fprintf(fileIDlog,'All NIRS channels pruned for Subject %s Run %d\n',sID,r);
+                        fprintf(fileIDlog,'All NIRS channels pruned for Subject %s Run %d\n',sID,runNumber);
                     else
                         
                         if strcmp(ext,'.nirs')
@@ -341,7 +355,32 @@ else
                         %% Image reconstruction
                         lmdata=data;
                         
-                        if (GSR)
+                        if (SSR)                            
+                            %set up data structure for ssrCh
+                            ssrList = zeros(meas,1);
+                            for tmp=1:size(ssrCh,2)
+                                ssrList(ssrCh(tmp),1)=1;
+                                ssrList(ssrCh(tmp)+ch,1)=1;
+                            end
+                            
+                            % lmdata is Nm measurements by Nt time with first Nm/2 as 1 wavelength and 2nd set as 2nd wavelength.
+                            keep1= ((info.MEAS.GI==1).*(info.pairs.WL==1).*(ssrList==1))==1;
+                            keep2= ((info.MEAS.GI==1).*(info.pairs.WL==2).*(ssrList==1))==1;
+                   
+                            if ~isempty(find(keep1==1)) & ~isempty(find(keep2==1))
+                                WL1gdave=nanmean(lmdata(keep1,:),1);
+                                WL2gdave=nanmean(lmdata(keep2,:),1);
+                            
+                                meanSign = cat(1,WL1gdave, WL2gdave);   % 2xNt matrix of mean signals for each wavelength
+                                lmdata = regcorr(lmdata, info, meanSign);
+                                NoGoodSSR = 0;
+                            else
+                                NoGoodSSR = 1;
+                                fprintf(fileIDlog,'No good SSR channels found for Subject %s Run %d\n',sID,runNumber);
+                            end
+                        end
+                        
+                        if ((~SSR) | (NoGoodSSR)) & (GSR)                           
                             % lmdata is Nm measurements by Nt time with first Nm/2 as 1 wavelength and 2nd set as 2nd wavelength.
                             keep1= ((info.MEAS.GI==1).*(info.pairs.WL==1))==1;
                             keep2= ((info.MEAS.GI==1).*(info.pairs.WL==2))==1;
@@ -350,7 +389,7 @@ else
                             WL2gdave=nanmean(lmdata(keep2,:),1);
                             
                             meanSign = cat(1,WL1gdave, WL2gdave);   % 2xNt matrix of mean signals for each wavelength
-                            lmdata = regcorr(lmdata, info, meanSign);
+                            lmdata = regcorr(lmdata, info, meanSign);                            
                         end
                         
                         if (newSamplingFreq ~= info.system.framerate)
@@ -402,7 +441,7 @@ else
                         cortex_HbT = cortex_HbO + cortex_HbR;
                         
                         %% Save your data--output in ND format to save space.
-                        varName2 = ['run' int2str(r)];
+                        varName2 = ['run' int2str(runNumber)];
                         NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND');
                         save(NDFile,'cortex_HbO','cortex_HbR','info', '-v7.3');
                         
