@@ -153,6 +153,7 @@ else
                 fprintf(fileIDlog,'No NIRS runs for Subject %s\n',sID);
             end
             
+            saveLightModel = 1;
             for r=1:numRuns
                 
                 %Get preprocessed NIRS file into NeuroDOT format
@@ -297,9 +298,10 @@ else
                     info.pairs.r2d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS; ARE THESE IN .NIRS FILE?
                     info.pairs.r3d=ones(meas,1).*baseSDmm; %%30MM 2D AND 3D DISTANCE BETWEEN PAIRS
                     
-                    if (runNumber == 1)
+                    if (saveLightModel == 1)
                         imageFileND=strcat(subjectList{5}{n},'/Adot_',sID,'_nd2_2mm');
-                        save(imageFileND,'A','info','-v7.3')
+                        save(imageFileND,'A','info','-v7.3');
+                        saveLightModel = 0;
                     end
                     
                     %%update so pruning channels based on bad channels on either wavelength
