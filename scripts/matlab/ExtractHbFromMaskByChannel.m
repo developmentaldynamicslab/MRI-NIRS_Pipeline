@@ -86,9 +86,9 @@ for n=1:numSubjects
     
     foldernames = {files.folder};
     files = {files.name};
-    filenames = strcat(foldernames,'/',files);
+    filenamesND = strcat(foldernames,'/',files);
     
-    numRuns=size(filenames,2);
+    numRuns=size(filenamesND,2);
 
     [filepath,name,extNIRS] = fileparts(subjectList{2}{n});
     inputFileStrNIRS=strcat(subjectList{4}{n}, '/', subjects{n}, strcat('*',extNIRS));
@@ -112,8 +112,9 @@ for n=1:numSubjects
     
     for r=1:numRuns
         
-        varName2 = ['run' int2str(r)];
-        NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND.mat');
+        %varName2 = ['run' int2str(r)];
+        %NDFile=strcat(subjectList{5}{n},'/',sID,'_',varName2,'_ND.mat');
+        NDFile=filenamesND{r};
         
         %Load NeuroDOT image file: data are voxels x time
         load(NDFile,'-mat');

@@ -38,7 +38,7 @@ function ImageRecon_NeuroDOT(subjectListFile,oldSamplingFreq,newSamplingFreq,pad
 
 %run interactively
 if 0
-    subjectListFile = 'Y1_NIHVWM_SubjListGroup6mo.prn';
+    subjectListFile = 'Y1_finalComboSubjListGroup_MRIsOnly_Coreg1_1Subj.prn';
     oldSamplingFreq = 25;
     newSamplingFreq = 10;
     paddingStart = 20;
@@ -249,6 +249,9 @@ else
                 
                 if NoStims
                     fprintf(fileIDlog,'No stims in NIRS file for run %d for Subject %s\n',runNumber,sID);
+                    newNameNIRS = [filenames{r} '.nostims'];
+                    movefile(filenames{r},newNameNIRS,'f');
+                    fprintf(fileIDlog,'Saving NIRSs file to new name %s\n',newNameNIRS);
                 else
                     
                     if strcmp(ext,'.nirs')
@@ -317,6 +320,9 @@ else
                     %%if no data, move on...
                     if sum(includedCh) == 0
                         fprintf(fileIDlog,'All NIRS channels pruned for Subject %s Run %d\n',sID,runNumber);
+                        newNameNIRS = [filenames{r} '.allpruned'];
+                        movefile(filenames{r},newNameNIRS,'f');
+                        fprintf(fileIDlog,'Saving NIRSs file to new name %s\n',newNameNIRS);
                     else
                         
                         if strcmp(ext,'.nirs')
