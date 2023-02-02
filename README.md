@@ -25,7 +25,9 @@ To cite:
 
 This pipeline has been used in the following papers:
 
-https://www.nature.com/articles/s41598-022-14761-2
+Defenderfer, Forbes, Wijeakumar, Hedrick, Plyler & Buss (2021): https://www.sciencedirect.com/science/article/pii/S1053811921006613
 
-https://www.sciencedirect.com/science/article/pii/S1878929323000105?via%3Dihub#fig0015
+Lowery, Nikam & Buss (2022): https://www.nature.com/articles/s41598-022-14761-2
+
+Davidson, Shing, McKay, Rafetseder & Wijeakumar (2023): https://www.sciencedirect.com/science/article/pii/S1878929323000105?via%3Dihub#fig0015
 
