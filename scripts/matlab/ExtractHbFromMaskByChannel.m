@@ -2,14 +2,16 @@ function ExtractHbFromMaskByChannel(subjectListFile,oldSamplingFreq,newSamplingF
 
 %to run interactively for debugging...
 if(0)
-    subjectListFile='Y2_finalComboSubjListGroup3.prn';
+    subjectListFile='Y1_finalComboSubjListGroup_MRITemplate_1S.prn';
     oldSamplingFreq = 25;
     newSamplingFreq=10;
     paddingStart=20;
     paddingEnd=40;
-    HRFDuration=18;
+    HRFDuration=20;
     MaxClustValue=1;
     checkAlignment=0; %toggle on/off to view headvol and mask alignment for each subject
+    GeneratePlots=1;
+    nPlotsPerFig=3;
 end
 
 fileID = fopen(subjectListFile,'r');
