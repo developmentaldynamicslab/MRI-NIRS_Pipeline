@@ -21,3 +21,13 @@ From there, follow the steps in the NeuroDOT_Pipeline_Instructions.docx found in
 To cite:
 
  Samuel H. Forbes, Sobanawartiny Wijeakumar, Adam T. Eggebrecht, Vincent A. Magnotta, and John P. Spencer "Processing pipeline for image reconstructed fNIRS analysis using both MRI templates and individual anatomy," Neurophotonics 8(2), 025010 (12 June 2021). https://doi.org/10.1117/1.NPh.8.2.025010
+
+
+This pipeline has been used in the following papers:
+
+Defenderfer, Forbes, Wijeakumar, Hedrick, Plyler & Buss (2021): https://www.sciencedirect.com/science/article/pii/S1053811921006613
+
+Lowery, Nikam & Buss (2022): https://www.nature.com/articles/s41598-022-14761-2
+
+Davidson, Shing, McKay, Rafetseder & Wijeakumar (2023): https://www.sciencedirect.com/science/article/pii/S1878929323000105?via%3Dihub#fig0015
+
