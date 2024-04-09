@@ -32,3 +32,6 @@ Lowery, Nikam & Buss (2022): https://www.nature.com/articles/s41598-022-14761-2
 Davidson, Shing, McKay, Rafetseder & Wijeakumar (2023): https://www.sciencedirect.com/science/article/pii/S1878929323000105?via%3Dihub#fig0015
 
 Davidson, Caes, Shing, McKay, Rafetseder & Wijeakjumar (2023): https://onlinelibrary.wiley.com/doi/10.1111/mbe.12383
+
+Davidson, Theyer, Amaireh, Wijeakumar (2024): https://www.sciencedirect.com/science/article/pii/S0163638323001133?via%3Dihub
+
