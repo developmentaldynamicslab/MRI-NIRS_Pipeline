@@ -29,9 +29,13 @@ Defenderfer, Forbes, Wijeakumar, Hedrick, Plyler & Buss (2021): https://www.scie
 
 Lowery, Nikam & Buss (2022): https://www.nature.com/articles/s41598-022-14761-2
 
+Wijeakumar, S., Forbes, S.H., Magnotta, V.A., Deoni, S., Jackson, K., Singh, V.P., Tiwari, M., Kumar, A. & Spencer, J.P. (2023). Stunting in the first year of life is associated with atypical activation of dorsal and ventral working memory and attention networks. Nature Human Behaviour, 7, 2199-2211. 
+
 Davidson, Shing, McKay, Rafetseder & Wijeakumar (2023): https://www.sciencedirect.com/science/article/pii/S1878929323000105?via%3Dihub#fig0015
 
 Davidson, Caes, Shing, McKay, Rafetseder & Wijeakjumar (2023): https://onlinelibrary.wiley.com/doi/10.1111/mbe.12383
 
 Davidson, Theyer, Amaireh, Wijeakumar (2024): https://www.sciencedirect.com/science/article/pii/S0163638323001133?via%3Dihub
+
+Amaireh, G., Caes, L., Theyer, A., Davidson, C. & Wijeakumar, S. (2024). Caregiver executive functions are associated with infant visual working memory. Infant and Child Development. https://onlinelibrary.wiley.com/doi/10.1002/icd.2543
 
