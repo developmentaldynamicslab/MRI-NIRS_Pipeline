@@ -35,7 +35,9 @@ Davidson, Shing, McKay, Rafetseder & Wijeakumar (2023): https://www.sciencedirec
 
 Davidson, Caes, Shing, McKay, Rafetseder & Wijeakjumar (2023): https://onlinelibrary.wiley.com/doi/10.1111/mbe.12383
 
-Davidson, Theyer, Amaireh, Wijeakumar (2024): https://www.sciencedirect.com/science/article/pii/S0163638323001133?via%3Dihub
+Davidson C, Theyer A, Amaireh G, Wijeakumar S. The impact of caregiver inhibitory control on infant visual working memory. Infant Behav Dev. 2024 Mar;74:101921. doi: 10.1016/j.infbeh.2023.101921. Epub 2024 Jan 11. PMID: 38211463.
 
 Amaireh, G., Caes, L., Theyer, A., Davidson, C. & Wijeakumar, S. (2024). Caregiver executive functions are associated with infant visual working memory. Infant and Child Development. https://onlinelibrary.wiley.com/doi/10.1002/icd.2543
+
+Theyer A, Davidson C, Amaireh G, Wijeakumar S. Association between caregiver and infant visual neurocognition. Infant Behav Dev. 2024 Sep;76:101975. doi: 10.1016/j.infbeh.2024.101975. Epub 2024 Jul 9. PMID: 38986217.
 
