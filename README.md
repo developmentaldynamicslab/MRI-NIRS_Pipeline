@@ -29,7 +29,7 @@ Defenderfer, Forbes, Wijeakumar, Hedrick, Plyler & Buss (2021): https://www.scie
 
 Lowery, Nikam & Buss (2022): https://www.nature.com/articles/s41598-022-14761-2
 
-Wijeakumar, S., Forbes, S.H., Magnotta, V.A., Deoni, S., Jackson, K., Singh, V.P., Tiwari, M., Kumar, A. & Spencer, J.P. (2023). Stunting in the first year of life is associated with atypical activation of dorsal and ventral working memory and attention networks. Nature Human Behaviour, 7, 2199-2211. 
+Wijeakumar, S., Forbes, S.H., Magnotta, V.A., Deoni, S., Jackson, K., Singh, V.P., Tiwari, M., Kumar, A. & Spencer, J.P. (2023). Stunting in the first year of life is associated with atypical activation of dorsal and ventral working memory and attention networks. Nature Human Behaviour, 7, 2199-2211. https://www.nature.com/articles/s41562-023-01725-3
 
 Davidson, Shing, McKay, Rafetseder & Wijeakumar (2023): https://www.sciencedirect.com/science/article/pii/S1878929323000105?via%3Dihub#fig0015
 
