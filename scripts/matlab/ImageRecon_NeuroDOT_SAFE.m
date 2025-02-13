@@ -327,7 +327,6 @@ else
                         
                         if strcmp(ext,'.nirs')
                             %%%%read in regressors (s matrix in .nirs file)...
-                            info.paradigm=[]; %% added Feb 2025 to clear Pulse_# for cases with multiple nirs files
                             info.paradigm.synchpts=[];
                             info.paradigm.synchtype=[];
                             for j=1:nregressors
@@ -339,7 +338,6 @@ else
                             info.paradigm.synchtype=info.paradigm.synchtype(idx);
                         elseif strcmp(ext,'.snirf')
                             %%%map .snirf stim structure to ND stims
-                            info.paradigm=[]; %% added Feb 2025 to clear Pulse_# for cases with multiple nirs files
                             info.paradigm.synchpts=[];
                             info.paradigm.synchtype=[];
                             for j=1:nregressors

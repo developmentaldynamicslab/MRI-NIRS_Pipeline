@@ -13,7 +13,6 @@ if [ $# != 1 ]; then
   exit
 fi
 
-
 if [ ! -e $1 ]; then
   echo "ERROR: Input file does not exist"
   exit 1
@@ -31,32 +30,26 @@ if [[ $afniProg == "" ]]; then
   exit 1
 fi
 
-
-tmpFile=`mktemp /tmp/fnirsRegCommonDriver.XXXXXX`
-cat $1 | sort -u -k1,1 >> $tmpFile
-inputFile=$tmpFile
-
-
-subjects=`awk '{print $1}' $inputFile`
+subjects=`awk '{print $1}' $1`
 let index=1
 
 for i in $subjects
 do
-  subjectId=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $1}'`
-  NIRSfile=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $2}'`
-  subjectDir=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $3}'`
-  betaDir=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $4}'`
-  subjectResultDir=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $5}'`
-  anatHeadVol=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $6}'`
-  atlasImage=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $7}'`
-  atlasMask=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $8}'`
-  commonResultDir=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $9}'`
-  atlasType=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $10}'`
-  fNIRSAtlasLabel=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $11}'`
-  subjectHsegMask=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $12}'`
-  atlasHsegMask=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $13}'`
-  subjectT1=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $14}'`
-  subjectBrainMask=`cat $inputFile | tr -d '\r' | sed -n ${index}p | awk '{print $15}'`
+  subjectId=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $1}'`
+  NIRSfile=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $2}'`
+  subjectDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $3}'`
+  betaDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $4}'`
+  subjectResultDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $5}'`
+  anatHeadVol=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $6}'`
+  atlasImage=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $7}'`
+  atlasMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $8}'`
+  commonResultDir=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $9}'`
+  atlasType=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $10}'`
+  fNIRSAtlasLabel=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $11}'`
+  subjectHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $12}'`
+  atlasHsegMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $13}'`
+  subjectT1=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $14}'`
+  subjectBrainMask=`cat $1 | tr -d '\r' | sed -n ${index}p | awk '{print $15}'`
 
   echo "Subject Id: $subjectId"
   echo "NIRS File: $NIRSfile"
@@ -188,7 +181,3 @@ do
   done
   let index+=1
 done
-
-rm $tmpFile
-
-
